@@ -75,11 +75,72 @@ Khi đó $Q=\left[q_1\quad q_2\quad\cdots\quad q_n\right]$
 Để tìm vector $a'$, ta cần tìm được vector $u$ sao cho phép đối xứng qua vector $u$ biến $a$ thành $a'$, như hình:
 ![1_JgR_uSU3-8dGNV-3nBnOPg.png](<https://media-hosting.imagekit.io/def17bc41fae4ff0/1_JgR_uSU3-8dGNV-3nBnOPg.png?Expires=1838060607&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=LVzQmikekmM-UtK~~7bBBm47YoICQ-30lBJnu2EiVUTF61yQHJPy1cgN2MomkNLVBWvJSJ107eJf3lgo3dK5tIjMo0cVLjiHEvNe2IJ183UgmZlsGTMb~OKLDCo4GLr8xwe~9MUK9cL9Pd3qkBgL-uwU1lPThr2PQFILzGEU11vXYKJSeRjz0N32oIXQPmeBUga-7RIeJoPecdpAfuSSDrSUkhbnavAVwwVahwsz3xEwNcegynWUinJPZJ4l-DxLxwPHMpLmIA3tzDVrTS4fc5uo0-aadl2PsWdhNDTsLeT7elNubdwWyNckMWrObloiYXSB1W2yPiFwli9vNAAd-g__>)
 
-Bằng phép biến đổi đơn giản, ta thu được các công thức sau cho cột $1$ của ma trận $A$:
+Bằng phép biến đổi đơn giản, ta thu được các công thức sau cho cột đầu tiên của ma trận $A$:
 ```math
 u = x + sign(a_{1})\left|\left|a_1\right|\right|e_1
 ```
 ```math
 v = \dfrac{u}{\left|\left|u\right|\right|}
 ```
+Ma trận Householder được xác định bởi công thức:
+```math
+H=I-2vv^T
+```
+Khi đó, ta có $A_1 = HA, Q = QH^T$.
+
+Tuy nhiên, đó chỉ mới là cột đầu tiên của ma trận $A$, để phân rã các cột còn lại, ta thực hiện theo nguyên tắc: Tại bước thứ $k + 1,1\le k \le n - 2$, ta thực hiện phân rã cột thứ $k + 1$ của ma trận $A'_k$, với $A'_k$ là ma trận con thu được bằng cách loại bỏ đi hàng thứ $k$ và cột thứ $k$ của ma trận $A_k$. Khi đó, ma trận Householder của chúng ta cần phải được điều chỉnh lại sau mỗi bước (để thỏa điều kiện nhân ma trận, bằng cách mở rộng ma trận $H_k$ thành:
+```math
+H_k = \begin{bmatrix}
+  I_{k - 1} & 0_{k - 1} \\
+  0_{k - 1} & H_k
+\end{bmatrix}
+```
 </p>
+<h3>3.4. Givens Rotations</h3>
+<p>Khác với phép biến đổi Householder, phép biến đổi Givens thực hiện biến đổi vector cột của ma trận $A$ bằng phép quay một góc $\theta$ nào đó.
+
+Trong không gian 2 chiều ($\mathbb{R}_2$), ta định nghĩa ma trận quay Givens $G_2$ như sau:
+```math
+G_2=\begin{bmatrix}
+  \cos{\theta} & -\sin{\theta} \\
+  \sin{\theta} & \sin{\theta}
+\end{bmatrix}
+```
+Với $\theta$ là góc giữa vector cần quay và trục $Ox$, có giá trị trong đoạn $[0,2\pi]$.
+
+Với không gian $n\ge 3$ chiều, ta định nghĩa ma trận quay Givens $G(i, j, \theta)$ như sau:
+```math
+G(i, j, \theta)=\begin{bmatrix}
+  1 & \cdots & 0 & \cdots & 0 & \cdots & 0 \\
+  \vdots & \ddots & \vdots &  & \vdots &  & \vdots \\
+  0 & \cdots & c & \cdots & -s & \cdots & 0 \\
+  \vdots & & \vdots & \ddots & \vdots &  & \vdots \\
+  0 & \cdots & s & \cdots & c & \cdots & 0 \\
+  \vdots & & \vdots & & \vdots & \ddots & \vdots \\
+  0 & \cdots & 0 & \cdots & 0 & \cdots & 1 \\
+\end{bmatrix}
+```
+Với $c = \cos{\theta},s=\sin{\theta}$ ở các hàng và cột thứ $i$ và $j$. Với $i>j$, phần tử khác $0$ của ma trận $G(i,j,\theta$) được xác định như sau:
+<ul>
+  <li>$g_{kk}=1$, với $k\neq i,j$</li>
+  <li>$g_{kk}=c$, với $k=i,j$</li>
+  <li>$g_{ji}=-g_{ij}=-s$</li>
+</ul>
+
+
+Ta cũng có nhận xét: Khi thực hiện phép nhân ma trận $G(i,j,\theta)A$, chỉ hàng $i$ và $j$ của $A$ bị ảnh hưởng, do đó bài toán của trở thành: tìm $c$ và $s$ để:
+```math
+\begin{bmatrix}
+c & -s \\
+s & c
+\end{bmatrix}\begin{bmatrix}
+a \\
+b \\
+\end{bmatrix}=\begin{bmatrix}
+r \\
+0 \\
+\end{bmatrix}
+```
+Trong đó $r=\sqrt{a^2+b^2}$, $a$ và $b$ là hai phần tử thuộc cùng một cột của hàng $i$ và $j$ của ma trận $A$. Rõ ràng, một bộ số $(c, s)$ thỏa mãn là $\left(\dfrac{a}{r}, \dfrac{b}{r}\right)$, tuy nhiên việc tính $r$ có thể gây ra tình trạng bị tràn số. Hiện nay nhiều ngôn ngữ lập trình sử dụng hàm `hypot`, một phương pháp tính $r$ mà không sử dụng hàm căn bậc $2$ (về hàm `hypot`, mọi người có thể tham khảo link sau: [hypot implementation](https://calhoun.nps.edu/server/api/core/bitstreams/a0926429-924e-42e7-bcd6-d077e88595c4/content?utm_source=chatgpt.com)). Trong source code, tác giả sử dụng hàm `arctan2` có trong thư viện `numpy` để tính góc $\theta$ và các giá trị $c, s$ tương ứng.
+</p>
+<h2>4. Thuật toán QR</h2>
