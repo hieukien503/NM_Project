@@ -52,49 +52,28 @@ def modified_gram_schmidt(A: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     R = Q.T @ A
     return Q, R
 
+
 def householder_reflection(A: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     """Compute the Householder reflection matrix and the vector."""
 
     n = A.shape[1]
     Q = np.eye(n)
-    R = A.copy()
+    A_copy = A.copy()
     for k in range(n - 1):
-        x = R[k:, k]                            # Extract the k-th column from the k-th row to the end
+        x = A[k:, k]                            # Extract the k-th column from the k-th row to the end
         e = np.zeros_like(x)                    # Create a zero vector of the same shape as x
         e[0] = np.linalg.norm(x)                # Set the first element of e to the norm of x
-        u = x - e                               # Create the Householder vector
+        u = x + np.sign(x[0]) * e               # Create the Householder vector
         v = u / np.linalg.norm(u)               # Normalize the Householder vector
         H = np.eye(n - k) - 2 * np.outer(v, v)  # Create the Householder matrix
         H = np.block([
             [np.eye(k), np.zeros((k, n - k))],  # Top-left block is the identity matrix
             [np.zeros((n - k, k)), H]           # Bottom-right block is the Householder matrix
         ])
-        R = H @ R                               # Apply the Householder transformation to R
+        A_copy = H @ A_copy                               # Apply the Householder transformation to R
         Q = Q @ H.T                             # Update Q with the Householder transformation
     
-    return Q, R
-
-def modified_householder_reflection(A: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
-    """Compute the Modified Householder reflection matrix and the vector."""
-
-    n = A.shape[1]
-    Q = np.eye(n)
-    R = A.copy()
-    for k in range(n - 1):
-        x = R[k:, k]                            # Extract the k-th column from the k-th row to the end
-        e = np.zeros_like(x)                    # Create a zero vector of the same shape as x
-        e[0] = np.linalg.norm(x)                # Set the first element of e to the norm of x
-        u = x + np.sign(x[0]) * e               # Create the Householder vector (key difference is here)
-        v = u / np.linalg.norm(u)               # Normalize the Householder vector
-        H = np.eye(n - k) - 2 * np.outer(v, v)  # Create the Householder matrix
-        H = np.block([
-            [np.eye(k), np.zeros((k, n - k))],  # Top-left block is the identity matrix
-            [np.zeros((n - k, k)), H]           # Bottom-right block is the Householder matrix
-        ])
-        R = H @ R                               # Apply the Householder transformation to R
-        Q = Q @ H.T                             # Update Q with the Householder transformation
-    
-    return Q, R
+    return Q, A_copy
 
 def givens_rotations(A: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     """Compute the Givens rotation matrix and the vector."""
@@ -144,11 +123,8 @@ def qr_algorithm(
         elif method == 'mgs':
             Q, R = modified_gram_schmidt(Ak)
 
-        elif method == 'chr':
+        elif method == 'hr':
             Q, R = householder_reflection(Ak)
-
-        elif method == 'mhr':
-            Q, R = modified_householder_reflection(Ak)
 
         elif method == 'givens':
             Q, R = givens_rotations(Ak)
@@ -161,7 +137,7 @@ def qr_algorithm(
         gb.matrices.append(Ak_next)
         
         # Check for convergence
-        if np.allclose(Ak, Ak_next, atol=tol):
+        if np.linalg.norm(Ak - Ak_next, ord=1) < tol:
             Ak = Ak_next
             break
 
