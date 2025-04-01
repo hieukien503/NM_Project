@@ -10,6 +10,8 @@
   - [3.4. Givens Rotations](#34-givens-rotations)
 - [4. Thuật toán QR](#4-thuật-toán-qr)
 - [5. Trường hợp đặc biệt](#5-trường-hợp-đặc-biệt)
+- [6. Cách chạy dự án](#6-cách-chạy-dự-án)
+- [7. Đánh giá hiệu năng](#7-đánh-giá-hiệu-năng)
 
 ## 1. Mở đầu
 Trong lĩnh vực đại số tuyến tính và các ứng dụng của nó, việc tìm trị riêng (eigenvalue) và vector riêng (eigenvector) của ma trận đóng vai trò vô cùng quan trọng. Đây là những công cụ cơ bản để phân tích và xử lý nhiều vấn đề trong khoa học máy tính, vật lý, kinh tế và nhiều ngành khoa học khác. Các trị riêng và vector riêng không chỉ cung cấp thông tin về cấu trúc của ma trận mà còn giúp giải quyết các bài toán liên quan đến biến đổi ma trận, phân tích phổ, và nhiều ứng dụng thực tiễn như nén ảnh, nhận dạng mẫu, và phân tích dữ liệu.
@@ -195,7 +197,7 @@ Trái ngược với trường hợp $A$ là ma trận trực giao, trường h�
 ### 5.5 $A$ là ma trận đường chéo
 Trong trường hợp này, $Q=I_n$ và $R=A$ (đây chính là một trường hợp đặc biệt của trường hợp $A$ là ma trận tam giác trên), tuy nhiên, cần phải chú ý dấu của các phần tử trên đường chéo của $A$ để thỏa mãn tính duy nhất của phân rã QR, bằng cách điều chỉnh dấu của các phần tử trên đường chéo của $R$ thành số dương và điều chỉnh dấu của $Q$ tương ứng sao cho $A=QR$ vẫn thỏa mãn
 
-## Cách chạy dự án
+## 6. Cách chạy dự án
 <p>Để chạy được dự án này, yêu cầu Python 3.12.5 phải được cài đặt sẵn trên máy tính (nên đề xuất cài đặt thêm VSCode hoặc PyCharm), sau đó làm theo các bước sau:
 <ol>
   <li>Nếu trên máy có cài sẵn `git`, clone project này về máy tính cá nhân bằng lệnh sau:
@@ -219,3 +221,5 @@ Các flags sau là bắt buộc:
 
 <em>Note: khi chạy flag `--run` đi kèm với flag `--eigens`, sẽ có thông báo chọn thêm các mode để chạy và so sánh kết quả, với 1 là so sánh với phương pháp dùng đa thức đặc trưng truyền thống, 2 và 3 là so sánh kết quả với các hàm có sẵn trong các thư viện của Python.</em>
 </p>
+
+## 7. Đánh giá hiệu năng
