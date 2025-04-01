@@ -1,32 +1,30 @@
-<h1>Thuật toán QR trong việc tìm trị riêng và vector riêng của ma trận</h1>
+# Thuật toán QR trong việc tìm trị riêng và vector riêng của ma trận
 
-## Về thuật toán QR, mọi người có thể ấn vào các section này để đọc:
-<details>
-  <summary><b>1. Mở đầu</b></summary>
-  <h2>1. Mở đầu</h2>
-<p>Trong lĩnh vực đại số tuyến tính và các ứng dụng của nó, việc tìm trị riêng (eigenvalue) và vector riêng (eigenvector) của ma trận đóng vai trò vô cùng quan trọng. Đây là những công cụ cơ bản để phân tích và xử lý nhiều vấn đề trong khoa học máy tính, vật lý, kinh tế và nhiều ngành khoa học khác. Các trị riêng và vector riêng không chỉ cung cấp thông tin về cấu trúc của ma trận mà còn giúp giải quyết các bài toán liên quan đến biến đổi ma trận, phân tích phổ, và nhiều ứng dụng thực tiễn như nén ảnh, nhận dạng mẫu, và phân tích dữ liệu.
+## Mục lục
+- [1. Mở đầu](#1-mở-đầu)
+- [2. Ý tưởng của thuật toán](#2-ý-tưởng-của-thuật-toán)
+- [3. Phân rã QR](#3-phân-rã-qr)
+  - [3.1. Gram-Schmidt Process](#31-gram-schmidt-process)
+  - [3.2. Modified Gram-Schmidt Process](#32-modified-gram-schmidt-process)
+  - [3.3. Householder Reflections](#33-householder-reflections)
+  - [3.4. Givens Rotations](#34-givens-rotations)
+- [4. Thuật toán QR](#4-thuật-toán-qr)
+- [5. Trường hợp đặc biệt](#5-trường-hợp-đặc-biệt)
+
+## 1. Mở đầu
+Trong lĩnh vực đại số tuyến tính và các ứng dụng của nó, việc tìm trị riêng (eigenvalue) và vector riêng (eigenvector) của ma trận đóng vai trò vô cùng quan trọng. Đây là những công cụ cơ bản để phân tích và xử lý nhiều vấn đề trong khoa học máy tính, vật lý, kinh tế và nhiều ngành khoa học khác. Các trị riêng và vector riêng không chỉ cung cấp thông tin về cấu trúc của ma trận mà còn giúp giải quyết các bài toán liên quan đến biến đổi ma trận, phân tích phổ, và nhiều ứng dụng thực tiễn như nén ảnh, nhận dạng mẫu, và phân tích dữ liệu.
 
 Trong số nhiều phương pháp tìm trị riêng và vector riêng, thuật toán QR nổi bật nhờ tính hiệu quả và độ ổn định số học cao. Thuật toán này dựa trên việc phân rã QR của ma trận và được cải tiến qua nhiều phiên bản nhằm tối ưu tốc độ hội tụ cũng như khả năng xử lý ma trận lớn. Nhờ vậy, thuật toán QR trở thành một trong những công cụ mạnh mẽ nhất trong việc giải các bài toán trị riêng của ma trận.
 
 Đề tài này tập trung nghiên cứu chi tiết thuật toán QR, từ cơ sở lý thuyết đến các bước triển khai thực tế. Bên cạnh đó, chúng ta cũng sẽ phân tích độ phức tạp, ưu điểm, nhược điểm của thuật toán, cũng như các cải tiến quan trọng giúp tăng cường hiệu quả trong thực hành. Việc nắm vững thuật toán QR không chỉ giúp hiểu sâu hơn về các phương pháp xử lý ma trận mà còn mở ra nhiều ứng dụng quan trọng trong các lĩnh vực kỹ thuật và khoa học tính toán.
 
-</p>
-</details>
-
-<details>
-  <summary><b>2. Ý tưởng của bài toán</b></summary>
-  <h2>2. Ý tưởng của bài toán</h2>
-<p>Gọi $A$ là ma trận thực, vuông cấp $n$ mà chúng ta muốn tìm trị riêng và vector riêng. Với cách truyền thống, chúng ta sẽ cần phải giải phương trình $det(A - \lambda I) = 0$ để tìm $\lambda$, rồi từ $\lambda$ để tìm ra vector riêng. Tuy nhiên khi ma trận $A$ ngày càng lớn ($n$ càng lớn), việc tính $det(A - \lambda I)$ sẽ rất khó khăn, không kể đến việc phải phương trình đa thức bậc cao (vốn không có công thức nghiệm tổng quát với đa thức có bậc lớn hơn $4$).
+## 2. Ý tưởng của thuật toán
+Gọi $A$ là ma trận thực, vuông cấp $n$ mà chúng ta muốn tìm trị riêng và vector riêng. Với cách truyền thống, chúng ta sẽ cần phải giải phương trình $det(A - \lambda I) = 0$ để tìm $\lambda$, rồi từ $\lambda$ để tìm ra vector riêng. Tuy nhiên khi ma trận $A$ ngày càng lớn ($n$ càng lớn), việc tính $det(A - \lambda I)$ sẽ rất khó khăn, không kể đến việc phải phương trình đa thức bậc cao (vốn không có công thức nghiệm tổng quát với đa thức có bậc lớn hơn $4$).
 
 Do đó, chúng ta có thể thử phân rã A thành tích của hai ma trận $Q$ và $R$, với $Q$ là ma trận trực giao (là ma trận vuông thỏa mãn $Q^{-1}=Q^T$), có các vector cột là các vector trực chuẩn, và $R$ là ma trận tam giác trên (chúng ta có thể ràng buộc các phần tử trên đường chéo của ma trận $R$ là số dương nếu $A$ khả nghịch để đảm bảo tính duy nhất của phân rã QR). Sau khi phân rã $A$ thành hai ma trận $Q$ và $R$ như trên, chúng ta sẽ cập nhật $A = RQ$ và lặp lại các bước trên, cho đến khi $A$ hội tụ về dạng ma trận tam giác (tạm gọi là $A_{conv}$), và các phần tử nằm trên đường chéo của $A_{conv}$ chính là trị riêng của ma trận $A$ ban đầu. Với mỗi $1\le i \le n$, phần tử hàng $i$, cột $i$ của ma trận $A_{conv}$ có vector riêng là cột thứ $i$ của $Q$.
 
-</p>
-</details>
-
-<details>
-  <summary><b>3. Phân rã QR</b></summary>
-  <h2>3. Phân rã QR</h2>
-<p>Phân rã QR là một phần quan trọng, giúp chúng ta xây dựng chuỗi ma trận $A$ của thuật toán QR. Ý tưởng của phương pháp là ta sẽ phân rã từng cột của ma trận $A$ thành tổ hợp tuyến tính của các vector cột trực chuẩn của $Q$. Có $3$ phương pháp được sử dụng:
+## 3. Phân rã QR
+Phân rã QR là một phần quan trọng, giúp chúng ta xây dựng chuỗi ma trận $A$ của thuật toán QR. Ý tưởng của phương pháp là ta sẽ phân rã từng cột của ma trận $A$ thành tổ hợp tuyến tính của các vector cột trực chuẩn của $Q$. Có $3$ phương pháp được sử dụng:
   <ul>
     <li>Gram-Schmidt Process</li>
     <li>Householder Reflections</li>
@@ -41,9 +39,9 @@ Phân rã QR có các tính chất sau:
 </ul>
 
 Trong phạm vi của đề tài, chúng ta sẽ chỉ giới hạn ma trận $A$ là ma trận thực, vuông cấp $n\ge 2$
-</p>
-<h3>3.1. Quy trình Gram-Schmidt</h3>
-<p>Quy trình Gram-Schmidt là quy trình dùng để xây dựng một tập hợp gồm $k$ vector ($k\ge 2$) đôi một vuông góc với nhau.
+
+### 3.1. Gram-Schmidt Process
+Gram-Schmidt Process là quy trình dùng để xây dựng một tập hợp gồm $k$ vector ($k\ge 2$) đôi một vuông góc với nhau.
 
 Ta định nghĩa tích vô hướng của $2$ vector $u$ và $v$ như sau: $\langle u,v\rangle=u^Tv$, phép chiếu vuông góc của vector $a$ lên vector $u$, kí hiệu $proj_{u} a$ được tính bằng công thức:
 
@@ -80,18 +78,18 @@ R=\begin{bmatrix}
 Tuy nhiên, cách này có một nhược điểm là không ổn định về mặt số học để tính toán. Lí do là ma trận $A$ của chúng ta là ma trận thực, và các vector $u_k$ sinh ra đều có một sai số nào đó do làm tròn số, và sai số này được sử dụng cho bước tính $u_{k+1}$.
 
 Do đó, chúng ta cần cải tiến phương pháp này, và gọi nó là phương pháp Modified Gram-Schmidt.
-</p>
-<h3>3.2. Modified Gram-Schmidt Process</h3>
-<p>Phương pháp này ra đời với mục đích: Tại bước thứ $k + 1$, loại bỏ các sai số của $u_i,~1\le i \le k$ ra khỏi việc tính $u_{k+1}$, $u_{k+2}$,.... Muốn làm được việc này, tại bước thứ $k + 1$, ta chỉ cần loại bỏ $proj_{u_i} a_k,~1\le i \le k$ ra khỏi công thức tính $u_{k+1}$ là xong.
+
+### 3.2. Modified Gram-Schmidt Process
+Phương pháp này ra đời với mục đích: Tại bước thứ $k + 1$, loại bỏ các sai số của $u_i,~1\le i \le k$ ra khỏi việc tính $u_{k+1}$, $u_{k+2}$,.... Muốn làm được việc này, tại bước thứ $k + 1$, ta chỉ cần loại bỏ $proj_{u_i} a_k,~1\le i \le k$ ra khỏi công thức tính $u_{k+1}$ là xong.
 
 Công thức mới sẽ là:
 ```math
 q_i = \dfrac{a_i}{\left|\left|a_i\right|\right|},~a_j = a_j - proj_{q_j} a_i,~1 \le j \le n,~j + 1 \le i \le n
 ```
 Khi đó $Q=\left[q_1\quad q_2\quad\cdots\quad q_n\right]$
-</p>
-<h3>3.3. Householder Reflections</h3>
-<p>Phép đối xứng Householder (hay phép biến đổi Householder) là phép biến đổi vector, trong đó ta cần biến đổi đối xứng vector $a$ cho trước thành vector $a'$ có giá trùng với giá của vector $e$ nào đó mà bảo toàn được độ lớn của vector $a$. Ở đây, ta chọn $e_1 = [1\quad 0\quad 0\quad\cdots\quad 0]$
+
+### 3.3. Householder Reflections
+Phép đối xứng Householder (hay phép biến đổi Householder) là phép biến đổi vector, trong đó ta cần biến đổi đối xứng vector $a$ cho trước thành vector $a'$ có giá trùng với giá của vector $e$ nào đó mà bảo toàn được độ lớn của vector $a$. Ở đây, ta chọn $e_1 = [1\quad 0\quad 0\quad\cdots\quad 0]$
 
 Để tìm vector $a'$, ta cần tìm được vector $u$ sao cho phép đối xứng qua vector $u$ biến $a$ thành $a'$, như hình:
 ![1_JgR_uSU3-8dGNV-3nBnOPg.png](<https://media-hosting.imagekit.io/def17bc41fae4ff0/1_JgR_uSU3-8dGNV-3nBnOPg.png?Expires=1838060607&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=LVzQmikekmM-UtK~~7bBBm47YoICQ-30lBJnu2EiVUTF61yQHJPy1cgN2MomkNLVBWvJSJ107eJf3lgo3dK5tIjMo0cVLjiHEvNe2IJ183UgmZlsGTMb~OKLDCo4GLr8xwe~9MUK9cL9Pd3qkBgL-uwU1lPThr2PQFILzGEU11vXYKJSeRjz0N32oIXQPmeBUga-7RIeJoPecdpAfuSSDrSUkhbnavAVwwVahwsz3xEwNcegynWUinJPZJ4l-DxLxwPHMpLmIA3tzDVrTS4fc5uo0-aadl2PsWdhNDTsLeT7elNubdwWyNckMWrObloiYXSB1W2yPiFwli9vNAAd-g__>)
@@ -116,9 +114,9 @@ H_k = \begin{bmatrix}
   0_{k - 1} & H_k
 \end{bmatrix}
 ```
-</p>
-<h3>3.4. Givens Rotations</h3>
-<p>Khác với phép biến đổi Householder, phép biến đổi Givens thực hiện biến đổi vector cột của ma trận $A$ bằng phép quay một góc $\theta$ nào đó.
+
+### 3.4. Givens Rotations
+Khác với phép biến đổi Householder, phép biến đổi Givens thực hiện biến đổi vector cột của ma trận $A$ bằng phép quay một góc $\theta$ nào đó.
 
 Trong không gian 2 chiều ($\mathbb{R}_2$), ta định nghĩa ma trận quay Givens $G_2$ như sau:
 ```math
@@ -163,13 +161,9 @@ r \\
 \end{bmatrix}
 ```
 Trong đó $r=\sqrt{a^2+b^2}$, $a$ và $b$ là hai phần tử thuộc cùng một cột của hàng $i$ và $j$ của ma trận $A$. Rõ ràng, một bộ số $(c, s)$ thỏa mãn là $\left(\dfrac{a}{r}, \dfrac{b}{r}\right)$, tuy nhiên việc tính $r$ có thể gây ra tình trạng bị tràn số. Hiện nay nhiều ngôn ngữ lập trình sử dụng hàm `hypot`, một phương pháp tính $r$ mà không sử dụng hàm căn bậc $2$ (về hàm `hypot`, mọi người có thể tham khảo link sau: [hypot implementation](https://calhoun.nps.edu/server/api/core/bitstreams/a0926429-924e-42e7-bcd6-d077e88595c4/content?utm_source=chatgpt.com)). Trong source code, tác giả sử dụng hàm `arctan2` có trong thư viện `numpy` để tính góc $\theta$ và các giá trị $c, s$ tương ứng.
-</p>
-</details>
 
-<details>
-  <summary><b>4. Thuật toán QR</b></summary>
-  <h2>4. Thuật toán QR</h2>
-<p>Trước khi bước vào phần này, chúng ta định nghĩa chuẩn $k\le 1$ của ma trận $A$, kí hiệu $\left|\left|A\right|\right|_k$ như sau:
+## 4. Thuật toán QR
+Trước khi bước vào phần này, chúng ta định nghĩa chuẩn $k\le 1$ của ma trận $A$, kí hiệu $\left|\left|A\right|\right|_k$ như sau:
   
 ```math
 \left|\left|A\right|\right|_k = \sqrt[k]{\sum_{i,j} \left|a_{ij}\right|^k}
@@ -187,26 +181,19 @@ Khi đó, ta nói ma trận $A$ "hội tụ" đến ma trận $A'$ khi và chỉ
   <li>Lặp cho đến khi số bước $k$ đạt giới hạn là `max_iter` hoặc khi  $\left|\left|A-A'\right|\right| < tolerance$</li>
 </ol>
 
-
 Khi đó, các giá trị trên đường chéo của $A_k$ hội tụ đến các trị riêng của vector $A$, còn ma trận $Q_{eigen}$ sẽ hội tụ đến ma trận $Q$ với các vector cột chính là các vector riêng của ma trận $A$.
-</p>
-</details>
 
-<details>
-  <summary><b>5. Trường hợp đặc biệt</b></summary>
-  <h2>5. Trường hợp đặc biệt</h2>
-  <h3>5.1. $A$ là ma trận $0_n$</h3>
-  
-  <p>Với trường hợp này, phân tích $QR$ của $A$ không phải là duy nhất, tuy nhiên ta có thể chọn một ma trận trực giao $Q$ thỏa mãn là $Q=I_n$, khi đó $R=0_n$</p>
-  <h3>5.2 $A$ là ma trận đơn vị ($A=I_n$)</h3>
-  <p>Với trường hợp này, ta có thể chọn một ma trận trực giao $Q$ thỏa mãn là $Q=I_n$, khi đó $R=I_n$ thỏa mãn ma trận tam giác trên</p>
-  <h3>5.3 $A$ là ma trận trực giao</h3>
-  <p>Vì $A$ đã là ma trận trực giao, ta có thể dễ dàng chọn được cặp ma trận ($Q, R$) thỏa mãn là ($A, I_n$)</p>
-  <h3>5.4 $A$ là ma trận tam giác trên</h3>
-  <p>Trái ngược với trường hợp $A$ là ma trận trực giao, trường hợp này ta dễ dàng chọn được cặp ma trận ($Q, R$) thỏa mãn là ($I_n, A$)</p>
-  <h3>5.5 $A$ là ma trận đường chéo</h3>
-  <p>Trong trường hợp này, $Q=I_n$ và $R=A$ (đây chính là một trường hợp đặc biệt của trường hợp $A$ là ma trận tam giác trên), tuy nhiên, cần phải chú ý dấu của các phần tử trên đường chéo của $A$ để thỏa mãn tính duy nhất của phân rã QR, bằng cách điều chỉnh dấu của các phần tử trên đường chéo của $R$ thành số dương và điều chỉnh dấu của $Q$ tương ứng sao cho $A=QR$ vẫn thỏa mãn</p>
-</details>
+## 5. Trường hợp đặc biệt
+### 5.1. $A$ là ma trận $0_n$
+Với trường hợp này, phân tích $QR$ của $A$ không phải là duy nhất, tuy nhiên ta có thể chọn một ma trận trực giao $Q$ thỏa mãn là $Q=I_n$, khi đó $R=0_n$
+### 5.2 $A$ là ma trận đơn vị ($A=I_n$)
+Với trường hợp này, ta có thể chọn một ma trận trực giao $Q$ thỏa mãn là $Q=I_n$, khi đó $R=I_n$ thỏa mãn ma trận tam giác trên
+### 5.3 $A$ là ma trận trực giao</h3>
+Vì $A$ đã là ma trận trực giao, ta có thể dễ dàng chọn được cặp ma trận ($Q, R$) thỏa mãn là ($A, I_n$)
+### 5.4 $A$ là ma trận tam giác trên
+Trái ngược với trường hợp $A$ là ma trận trực giao, trường hợp này ta dễ dàng chọn được cặp ma trận ($Q, R$) thỏa mãn là ($I_n, A$)
+### 5.5 $A$ là ma trận đường chéo
+Trong trường hợp này, $Q=I_n$ và $R=A$ (đây chính là một trường hợp đặc biệt của trường hợp $A$ là ma trận tam giác trên), tuy nhiên, cần phải chú ý dấu của các phần tử trên đường chéo của $A$ để thỏa mãn tính duy nhất của phân rã QR, bằng cách điều chỉnh dấu của các phần tử trên đường chéo của $R$ thành số dương và điều chỉnh dấu của $Q$ tương ứng sao cho $A=QR$ vẫn thỏa mãn
 
 ## Cách chạy dự án
 <p>Để chạy được dự án này, yêu cầu Python 3.12.5 phải được cài đặt sẵn trên máy tính (nên đề xuất cài đặt thêm VSCode hoặc PyCharm), sau đó làm theo các bước sau:
