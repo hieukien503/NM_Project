@@ -197,11 +197,27 @@ Khi đó, các giá trị trên đường chéo của $A_k$ hội tụ đến c�
   <h2>5. Trường hợp đặc biệt</h2>
 </details>
 
-<h2>6. Cách chạy dự án</h2>
-<p>Để chạy được dự án này, yêu cầu Python 3.12.5 phải được cài đặt sẵn trên máy tính, sau đó làm theo các bước sau:
+## Cách chạy dự án
+<p>Để chạy được dự án này, yêu cầu Python 3.12.5 phải được cài đặt sẵn trên máy tính (nên đề xuất cài đặt thêm VSCode hoặc PyCharm), sau đó làm theo các bước sau:
 <ol>
   <li>Nếu trên máy có cài sẵn `git`, clone project này về máy tính cá nhân bằng lệnh sau:
+    
   ```
-  git clone https://github.com/hieukien503/NM_Project.git</li>
+  git clone https://github.com/hieukien503/NM_Project.git
+  ```
+  Nếu chưa cài `git`, vào folder `NM_Project`, ấn vào nút `Code` màu xanh lá, chọn "Download ZIP". Sau khi tải xong, hãy giải nén file này ra.
+  </li>
+  <li>Vào VSCode (hoặc PyCharm), mở terminal để có thể chạy file bằng dòng lệnh (CLI - Command Line Interface)</li>
 </ol>
+
+Trước khi chạy dự án, gõ `python main.py -h` để xem các flags được thiết kế sẵn cho việc chạy dự án này, các flags đó được liệt kê như trong hình dưới đây:![Screenshot 2025-04-01 150909.png](<https://media-hosting.imagekit.io/9cb7bff5bf604ea1/Screenshot%202025-04-01%20150909.png?Expires=1838103041&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=MYoch08jiUybBagSsIUoJDYpsFM95XTQ4~GYPgS9NfgRKwIxbSC8m4e9bKOMss2x4zuM5~m6PIkXIiJ8F0rH0YHjfO4nJVs8jZ-EO97pKWByrxxJlqmW8rLavoPfLoOoBK4eQvpU1cUI8yaysGT1GvygTIGDk0Z4EMLWvZyoBLmG1Q4lOq~lYqEFzDEXaPkFMH43yGaZPl4QTvjPlZDd0rG4bb35utU~csEVxS~ca3kXYKDWSw~Yi8lyPMF81sffY1mkWaf674GboodSdr7x8ZEpU-uPdpDH0Pms4IpntzvOzhmopgW-kDFeidYtbJJSzVZmVH4hqJqTHzOTy2YBXg__>)
+
+Các flags sau là bắt buộc:
+<ul>
+  <li>
+    `--run`: Đây là flag dùng để chạy dự án, không nhận tham số đầu vào, nhưng phải có flag `--eigens` (để tìm trị riêng và vector riêng) hoặc `--qr_decompo` (để chạy phân rã QR)</li>
+  <li>`--input`: Nhận $1$ tham số đầu vào là đường dẫn đến file input chứa ma trận $A$ (ở đây file chứa ma trận $A$ có tên là `test.txt`)</li>
+</ul>
+
+<em>Note: khi chạy flag `--run` đi kèm với flag `--eigens`, sẽ có thông báo chọn thêm các mode để chạy và so sánh kết quả, với 1 là so sánh với phương pháp dùng đa thức đặc trưng truyền thống, 2 và 3 là so sánh kết quả với các hàm có sẵn trong các thư viện của Python.</em>
 </p>
