@@ -8,17 +8,17 @@
 
 Trong số nhiều phương pháp tìm trị riêng và vector riêng, thuật toán QR nổi bật nhờ tính hiệu quả và độ ổn định số học cao. Thuật toán này dựa trên việc phân rã QR của ma trận và được cải tiến qua nhiều phiên bản nhằm tối ưu tốc độ hội tụ cũng như khả năng xử lý ma trận lớn. Nhờ vậy, thuật toán QR trở thành một trong những công cụ mạnh mẽ nhất trong việc giải các bài toán trị riêng của ma trận.
 
-Đề tài này tập trung nghiên cứu chi tiết thuật toán QR, từ cơ sở lý thuyết đến các bước triển khai thực tế. Bên cạnh đó, chúng tôi cũng sẽ phân tích độ phức tạp, ưu điểm, nhược điểm của thuật toán, cũng như các cải tiến quan trọng giúp tăng cường hiệu quả trong thực hành. Việc nắm vững thuật toán QR không chỉ giúp hiểu sâu hơn về các phương pháp xử lý ma trận mà còn mở ra nhiều ứng dụng quan trọng trong các lĩnh vực kỹ thuật và khoa học tính toán.
+Đề tài này tập trung nghiên cứu chi tiết thuật toán QR, từ cơ sở lý thuyết đến các bước triển khai thực tế. Bên cạnh đó, chúng ta cũng sẽ phân tích độ phức tạp, ưu điểm, nhược điểm của thuật toán, cũng như các cải tiến quan trọng giúp tăng cường hiệu quả trong thực hành. Việc nắm vững thuật toán QR không chỉ giúp hiểu sâu hơn về các phương pháp xử lý ma trận mà còn mở ra nhiều ứng dụng quan trọng trong các lĩnh vực kỹ thuật và khoa học tính toán.
 
 </p>
 </details>
 
 <details>
-  <summary><b>Ý tưởng của bài toán</b></summary>
+  <summary><b>2. Ý tưởng của bài toán</b></summary>
   <h2>2. Ý tưởng của bài toán</h2>
 <p>Gọi $A$ là ma trận thực, vuông cấp $n$ mà chúng ta muốn tìm trị riêng và vector riêng. Với cách truyền thống, chúng ta sẽ cần phải giải phương trình $det(A - \lambda I) = 0$ để tìm $\lambda$, rồi từ $\lambda$ để tìm ra vector riêng. Tuy nhiên khi ma trận $A$ ngày càng lớn ($n$ càng lớn), việc tính $det(A - \lambda I)$ sẽ rất khó khăn, không kể đến việc phải phương trình đa thức bậc cao (vốn không có công thức nghiệm tổng quát với đa thức có bậc lớn hơn $4$).
 
-Do đó, chúng ta có thể thử phân rã A thành tích của hai ma trận $Q$ và $R$, với $Q$ là ma trận trực giao (là ma trận vuông thỏa mãn $Q^{-1}=Q^T$), và $R$ là ma trận tam giác trên. Sau khi phân rã $A$ thành hai ma trận $Q$ và $R$ như trên, chúng ta sẽ cập nhật $A = RQ$ và lặp lại các bước trên, cho đến khi $A$ hội tụ về dạng ma trận tam giác (tạm gọi là $A_{conv}$), và các phần tử nằm trên đường chéo của $A_{conv}$ chính là trị riêng của ma trận $A$ ban đầu. Với mỗi $1\le i \le n$, phần tử hàng $i$, cột $i$ của ma trận $A_{conv}$ có vector riêng là cột thứ $i$ của $Q$.
+Do đó, chúng ta có thể thử phân rã A thành tích của hai ma trận $Q$ và $R$, với $Q$ là ma trận trực giao (là ma trận vuông thỏa mãn $Q^{-1}=Q^T$), có các vector cột là các vector trực chuẩn, và $R$ là ma trận tam giác trên (chúng ta có thể ràng buộc các phần tử trên đường chéo của ma trận $R$ là số dương nếu $A$ khả nghịch để đảm bảo tính duy nhất của phân rã QR). Sau khi phân rã $A$ thành hai ma trận $Q$ và $R$ như trên, chúng ta sẽ cập nhật $A = RQ$ và lặp lại các bước trên, cho đến khi $A$ hội tụ về dạng ma trận tam giác (tạm gọi là $A_{conv}$), và các phần tử nằm trên đường chéo của $A_{conv}$ chính là trị riêng của ma trận $A$ ban đầu. Với mỗi $1\le i \le n$, phần tử hàng $i$, cột $i$ của ma trận $A_{conv}$ có vector riêng là cột thứ $i$ của $Q$.
 
 </p>
 </details>
@@ -195,6 +195,17 @@ Khi đó, các giá trị trên đường chéo của $A_k$ hội tụ đến c�
 <details>
   <summary><b>5. Trường hợp đặc biệt</b></summary>
   <h2>5. Trường hợp đặc biệt</h2>
+  <h3>5.1. $A$ là ma trận $0_n$</h3>
+  
+  <p>Với trường hợp này, phân tích $QR$ của $A$ không phải là duy nhất, tuy nhiên ta có thể chọn một ma trận trực giao $Q$ thỏa mãn là $Q=I_n$, khi đó $R=0_n$</p>
+  <h3>5.2 $A$ là ma trận đơn vị ($A=I_n$)</h3>
+  <p>Với trường hợp này, ta có thể chọn một ma trận trực giao $Q$ thỏa mãn là $Q=I_n$, khi đó $R=I_n$ thỏa mãn ma trận tam giác trên</p>
+  <h3>5.3 $A$ là ma trận trực giao</h3>
+  <p>Vì $A$ đã là ma trận trực giao, ta có thể dễ dàng chọn được cặp ma trận ($Q, R$) thỏa mãn là ($A, I_n$)</p>
+  <h3>5.4 $A$ là ma trận tam giác trên</h3>
+  <p>Trái ngược với trường hợp $A$ là ma trận trực giao, trường hợp này ta dễ dàng chọn được cặp ma trận ($Q, R$) thỏa mãn là ($I_n, A$)</p>
+  <h3>5.5 $A$ là ma trận đường chéo</h3>
+  <p>Trong trường hợp này, $Q=I_n$ và $R=A$ (đây chính là một trường hợp đặc biệt của trường hợp $A$ là ma trận tam giác trên), tuy nhiên, cần phải chú ý dấu của các phần tử trên đường chéo của $A$ để thỏa mãn tính duy nhất của phân rã QR, bằng cách điều chỉnh dấu của các phần tử trên đường chéo của $R$ thành số dương và điều chỉnh dấu của $Q$ tương ứng sao cho $A=QR$ vẫn thỏa mãn</p>
 </details>
 
 ## Cách chạy dự án
