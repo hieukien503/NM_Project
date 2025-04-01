@@ -14,10 +14,61 @@ def project(u, v):
     """Project vector v onto vector u."""
     return (np.dot(u, v) / np.dot(u, u)) * u
 
+def handle_special_case(A: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    # Check if A is a zero matrix
+    if np.all(A == 0):
+        return np.eye(A.shape[1]), np.zeros_like(A)
+    
+    # Check if A is an identity matrix
+    if np.array_equal(A, np.eye(A.shape[1])):
+        return np.eye(A.shape[1]), np.eye(A.shape[1])
+    
+    # Check if A is an orthogonal matrix
+    try:
+        if A.T == np.linalg.inv(A):
+            return A.copy(), np.eye(A.shape[1])
+    
+    except np.linalg.LinAlgError as LAE:
+        pass
+    
+    # Check if A is an upper triangular matrix
+    def is_upper(A):
+        for i in range(1, A.shape[0]):
+            for j in range(0, i):
+                if A[i, j] != 0:
+                    return False
+        
+        return True
+    
+    if is_upper(A):
+        return np.eye(A.shape[1]), A.copy()
+    
+    def is_diagonal(A):
+        for i in range(A.shape[0]):
+            for j in range(A.shape[1]):
+                if i != j and A[i, j] != 0:
+                    return False
+                
+        return True
+    
+    if is_diagonal(A):
+        Q, R = np.eye(A.shape[1]), A.copy()
+        for i in range(A.shape[1]):
+            Q[i, i] = np.sign(A[i, i]) if np.sign(A[i, i]) != 0 else Q[i, i]
+            R[i, i] = np.abs(A[i, i])
+        
+        return Q, R
+    
+    return None, None
+
 def gram_schmidt(A: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     """Perform Gram-Schmidt orthogonalization on the columns of matrix A."""
 
     n = A.shape[1]
+    Q, R = handle_special_case(A)
+    if Q is not None:
+        return Q, R
+    
     Q = np.zeros((n, n))
     R = np.zeros((n, n))
     U = np.zeros((n, n))
@@ -38,6 +89,10 @@ def modified_gram_schmidt(A: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     """Perform Modified Gram-Schmidt orthogonalization on the columns of matrix A."""
     
     n = A.shape[1]
+    Q, R = handle_special_case(A)
+    if Q is not None:
+        return Q, R
+    
     Q = np.zeros((n, n))
     R = np.zeros((n, n))
     A_modified = A.copy()
@@ -57,6 +112,10 @@ def householder_reflection(A: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     """Compute the Householder reflection matrix and the vector."""
 
     n = A.shape[1]
+    Q, R = handle_special_case(A)
+    if Q is not None:
+        return Q, R
+    
     Q = np.eye(n)
     A_copy = A.copy()
     for k in range(n - 1):
@@ -79,6 +138,10 @@ def givens_rotations(A: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     """Compute the Givens rotation matrix and the vector."""
 
     n = A.shape[1]
+    Q, R = handle_special_case(A)
+    if Q is not None:
+        return Q, R
+    
     Q = np.eye(n)
     R = A.copy()
     for k in range(n - 1):
@@ -137,7 +200,7 @@ def qr_algorithm(
         gb.matrices.append(Ak_next)
         
         # Check for convergence
-        if np.linalg.norm(Ak - Ak_next, ord=1) < tol:
+        if np.linalg.norm(Ak - Ak_next, ord=gb.norm_ord) < tol:
             Ak = Ak_next
             break
 
