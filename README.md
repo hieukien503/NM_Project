@@ -219,7 +219,13 @@ Các flags sau là bắt buộc:
   <li>`--input`: Nhận $1$ tham số đầu vào là đường dẫn đến file input chứa ma trận $A$ (ở đây file chứa ma trận $A$ có tên là `test.txt`)</li>
 </ul>
 
-<em>Note: khi chạy flag `--run` đi kèm với flag `--eigens`, sẽ có thông báo chọn thêm các mode để chạy và so sánh kết quả, với 1 là so sánh với phương pháp dùng đa thức đặc trưng truyền thống, 2 và 3 là so sánh kết quả với các hàm có sẵn trong các thư viện của Python.</em>
+<em>Note: khi chạy flag `--run` đi kèm với flag `--eigens`, sẽ có thông báo chọn thêm các mode để chạy và so sánh kết quả, với 1 là so sánh với phương pháp dùng đa thức đặc trưng truyền thống, 2 và 3 là so sánh kết quả với các hàm có sẵn trong các thư viện của Python. Còn nếu chạy flag `--run` kèm với `--qr_decompo`, chương trình sẽ đánh giá hiệu năng của các phương pháp phân rã QR so với thư viện `numpy` với hàm `numpy.linalg.qr`</em>
 </p>
 
 ## 7. Đánh giá hiệu năng
+Trong phần này, chúng ta sẽ kiểm thử với ma trận vuông cấp $1000$, với mỗi phần tử nằm trong đoạn $[-200,200]$
+### 7.1. Phân rã QR
+#### 7.1.1. Sử dụng Gram-Schmidt Process
+Kết quả khi chạy phân rã QR sử dụng quy trình Gram-Schmidt, ta có kết quả sau: ![Screenshot 2025-04-01 202842.png](<https://media-hosting.imagekit.io/0fcf367f30b54c8a/Screenshot%202025-04-01%20202842.png?Expires=1838122326&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=UHBHQeMCokwAeXUZ-dQesAUSepFLuQ4rQhPmbsJuTfTfs6DYe0PNMLGO4OcWbqLcz6JTuo-qiQR4lDlPkp-BW~XBvvRNEo4dVENoMcUB1ixVDtSEhBBbDfLuLtu~5RdxRw5cgHCZstmGd9ZqTCcD0fLbSBEXHAfBgwRZRLwC-t0ubJlO78zBULsXPgkIwsPp47v4Y6T2OgiV1CQ9fkErntUGsQAj7m1CRkR2qylx0cjcNDnQbt80lnsY9Fcy0dBq-9p9L17y9R9UQ99G84qLZvFZNYFmZs8CWNmqCe-Ym~X9xr5jACv5XEMBMlSjNkxOym~1jJCiOuM0qJ7kSAXN3A__>)
+#### 7.1.2. Sử dụng Modified Gram-Schmidt Process
+Khi thay thế quy trình Gram-Schmidt truyền thống bởi quy trình Gram-Schmidt cải tiến ta có kết quả sau (tắt flag `--gen` để không sinh ra ma trận mới): ![Screenshot 2025-04-01 202842.png](<https://media-hosting.imagekit.io/69749a57e940417f/Screenshot%202025-04-01%20202842.png?Expires=1838122401&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=DjCD23XcAwUZLEaysSyWAQcQb1w3OJl26pRYZV5MfbsHtD37vkTnjSOlmG2FcFFXEkhg-TfO~MzvHvDnSFdENExEXiR~TpyGBsV~e9Oq4nHSekhOgPqV8znF5HmlnsrxFziOECMIyZxTa2d9MOIXJJCtZjw9uf5EQLGlqAgI1FUvHYuUTtq2nAMy0p9sXNz3aLwL6oz9UKkllG9vJB558d6wyL8mGTNfSCvjWgVOkM5gTKtBmhtivMT1lq62ALo5d2kZf5vEC~bhrJgItkdGZ-BWZ0SR89zZ60JCEW7B7Lo~nsQTWwSMoyxa10v78u4yOMPddpMEDroin9FVNlcrDw__>)
