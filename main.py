@@ -2,7 +2,6 @@ import argparse
 import global_constant as gb
 
 from utils import *
-from qr_algorithm import *
 from test import TestCase
 
 parser = argparse.ArgumentParser(
@@ -12,6 +11,8 @@ parser.add_argument("--gen", action="store_true",
                     help="Generate a square matrix (use --sym for a symmetric matrix) and store it in the input file")
 parser.add_argument("--sym", action="store_true", 
                     help="Enable symmetric matrix mode")
+parser.add_argument("--complex", action="store_true",
+                    help="Enable complex matrix mode")
 parser.add_argument("--run", required=True, action="store_true",
                     help="Test the QR decomposition and algorithm.")
 parser.add_argument("--maxsize", type=int, default=5,
@@ -20,7 +21,7 @@ parser.add_argument("--low", type=int, default=-200,
             help="Specify the lower bound for the elements of the generated matrix (only works if --gen or --test is enabled)")
 parser.add_argument("--high", type=int, default=200,
             help="Specify the upper bound for the elements of the generated matrix (only works if --gen or --test is enabled)")
-parser.add_argument("--eigens", choices=["cgs", "mgs", "chr", "mhr", "givens", "power"], 
+parser.add_argument("--eigens", choices=["cgs", "mgs", "hr", "givens", "power"], 
                     help="Run the QR algorithm using the specified method.")
 parser.add_argument("--qr_decompo", choices=["cgs", "mgs", "chr", "mhr", "givens"], 
                     help="Perform QR decomposition using the specified method.")
@@ -45,8 +46,8 @@ if __name__ == '__main__':
         raise ValueError("Must specify --eigens or --qr_decompo")
 
     if gb.args.gen:
-        gen_matrix(gb.args.input, gb.args.low, gb.args.high, gb.args.maxsize) if gb.args.sym else \
-        gen_sym_matrix(gb.args.input, gb.args.low, gb.args.high, gb.args.maxsize)
+        gen_sym_matrix(gb.args.input, gb.args.low, gb.args.high, gb.args.maxsize) if gb.args.sym else \
+        gen_matrix(gb.args.input, gb.args.low, gb.args.high, gb.args.maxsize)
     
     if gb.args.visualize:
         gb.VISUALIZE = True

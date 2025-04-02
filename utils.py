@@ -97,9 +97,6 @@ def print_matrix(matrix: np.ndarray):
     print("\n".join([" ".join([f"{item:.6f}" for item in sublist]) for sublist in matrix]))
 
 def print_eigens(eigenvalues, eigenvectors):
-    if len(eigenvalues) != len(eigenvectors):
-        raise ValueError("`eigenvalues` and `eigenvectors` must have the same length")
-    
     print(f'{"Eigenvalue":<20} {"Eigenvector":<20}')
     for val, vec in zip(eigenvalues, eigenvectors.T):
         vec_str = ', '.join(f'{x:.6f}' for x in vec)

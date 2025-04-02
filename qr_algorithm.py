@@ -25,7 +25,7 @@ def handle_special_case(A: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     
     # Check if A is an orthogonal matrix
     try:
-        if A.T == np.linalg.inv(A):
+        if np.array_equal(A.T, np.linalg.inv(A)):
             return A.copy(), np.eye(A.shape[1])
     
     except np.linalg.LinAlgError as LAE:
@@ -108,7 +108,7 @@ def modified_gram_schmidt(A: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     return Q, R
 
 
-def householder_reflection(A: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+def householder_reflections(A: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     """Compute the Householder reflection matrix and the vector."""
 
     n = A.shape[1]
@@ -129,7 +129,7 @@ def householder_reflection(A: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
             [np.eye(k), np.zeros((k, n - k))],  # Top-left block is the identity matrix
             [np.zeros((n - k, k)), H]           # Bottom-right block is the Householder matrix
         ])
-        A_copy = H @ A_copy                               # Apply the Householder transformation to R
+        A_copy = H @ A_copy                     # Apply the Householder transformation to R
         Q = Q @ H.T                             # Update Q with the Householder transformation
     
     return Q, A_copy
@@ -160,21 +160,13 @@ def givens_rotations(A: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
 
 def qr_algorithm(
         A: np.ndarray,
-        method: str = 'gram_schmidt',
+        method: str = 'cgs',
         tol: float = 1e-10,
         max_iter: int = 1000
     ) -> tuple[np.ndarray, np.ndarray]:
     """Compute the eigenvalues and eigenvectors of matrix A using the QR algorithm."""
-
-    # Check if the matrix is empty
-    if A.size == 0:
-        raise ValueError("Matrix A must not be empty")
     
-    # Check if the matrix is square
-    if A.shape[0] != A.shape[1]:
-        raise ValueError("Matrix A must be square")
-    
-    n = A.shape[0]
+    n = A.shape[1]
     Q_total = np.eye(n)
     Ak = A.copy()
     gb.matrices = [A]
@@ -187,7 +179,7 @@ def qr_algorithm(
             Q, R = modified_gram_schmidt(Ak)
 
         elif method == 'hr':
-            Q, R = householder_reflection(Ak)
+            Q, R = householder_reflections(Ak)
 
         elif method == 'givens':
             Q, R = givens_rotations(Ak)
