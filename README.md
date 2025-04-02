@@ -11,7 +11,7 @@
 - [4. Thuật toán QR](#4-thuật-toán-qr)
 - [5. Trường hợp đặc biệt](#5-trường-hợp-đặc-biệt)
 - [6. Cách chạy dự án](#6-cách-chạy-dự-án)
-- [7. Đánh giá hiệu năng](#7-đánh-giá-hiệu-năng)
+- [7. Ưu điểm và nhược điểm](#7-ưu-điểm-và-nhược-điểm)
 
 ## 1. Mở đầu
 Trong lĩnh vực đại số tuyến tính và các ứng dụng của nó, việc tìm trị riêng (eigenvalue) và vector riêng (eigenvector) của ma trận đóng vai trò vô cùng quan trọng. Đây là những công cụ cơ bản để phân tích và xử lý nhiều vấn đề trong khoa học máy tính, vật lý, kinh tế và nhiều ngành khoa học khác. Các trị riêng và vector riêng không chỉ cung cấp thông tin về cấu trúc của ma trận mà còn giúp giải quyết các bài toán liên quan đến biến đổi ma trận, phân tích phổ, và nhiều ứng dụng thực tiễn như nén ảnh, nhận dạng mẫu, và phân tích dữ liệu.
@@ -222,10 +222,23 @@ Các flags sau là bắt buộc:
 <em>Note: khi chạy flag `--run` đi kèm với flag `--eigens`, sẽ có thông báo chọn thêm các mode để chạy và so sánh kết quả, với 1 là so sánh với phương pháp dùng đa thức đặc trưng truyền thống, 2 và 3 là so sánh kết quả với các hàm có sẵn trong các thư viện của Python. Còn nếu chạy flag `--run` kèm với `--qr_decompo`, chương trình sẽ đánh giá hiệu năng của các phương pháp phân rã QR so với thư viện `numpy` với hàm `numpy.linalg.qr`</em>
 </p>
 
-## 7. Đánh giá hiệu năng
-Trong phần này, chúng ta sẽ kiểm thử với ma trận vuông cấp $1000$, với mỗi phần tử nằm trong đoạn $[-200,200]$
-### 7.1. Phân rã QR
-#### 7.1.1. Sử dụng Gram-Schmidt Process
-Kết quả khi chạy phân rã QR sử dụng quy trình Gram-Schmidt, ta có kết quả sau: ![Screenshot 2025-04-01 202842.png](<https://media-hosting.imagekit.io/0fcf367f30b54c8a/Screenshot%202025-04-01%20202842.png?Expires=1838122326&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=UHBHQeMCokwAeXUZ-dQesAUSepFLuQ4rQhPmbsJuTfTfs6DYe0PNMLGO4OcWbqLcz6JTuo-qiQR4lDlPkp-BW~XBvvRNEo4dVENoMcUB1ixVDtSEhBBbDfLuLtu~5RdxRw5cgHCZstmGd9ZqTCcD0fLbSBEXHAfBgwRZRLwC-t0ubJlO78zBULsXPgkIwsPp47v4Y6T2OgiV1CQ9fkErntUGsQAj7m1CRkR2qylx0cjcNDnQbt80lnsY9Fcy0dBq-9p9L17y9R9UQ99G84qLZvFZNYFmZs8CWNmqCe-Ym~X9xr5jACv5XEMBMlSjNkxOym~1jJCiOuM0qJ7kSAXN3A__>)
-#### 7.1.2. Sử dụng Modified Gram-Schmidt Process
-Khi thay thế quy trình Gram-Schmidt truyền thống bởi quy trình Gram-Schmidt cải tiến ta có kết quả sau (tắt flag `--gen` để không sinh ra ma trận mới): ![Screenshot 2025-04-01 202842.png](<https://media-hosting.imagekit.io/69749a57e940417f/Screenshot%202025-04-01%20202842.png?Expires=1838122401&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=DjCD23XcAwUZLEaysSyWAQcQb1w3OJl26pRYZV5MfbsHtD37vkTnjSOlmG2FcFFXEkhg-TfO~MzvHvDnSFdENExEXiR~TpyGBsV~e9Oq4nHSekhOgPqV8znF5HmlnsrxFziOECMIyZxTa2d9MOIXJJCtZjw9uf5EQLGlqAgI1FUvHYuUTtq2nAMy0p9sXNz3aLwL6oz9UKkllG9vJB558d6wyL8mGTNfSCvjWgVOkM5gTKtBmhtivMT1lq62ALo5d2kZf5vEC~bhrJgItkdGZ-BWZ0SR89zZ60JCEW7B7Lo~nsQTWwSMoyxa10v78u4yOMPddpMEDroin9FVNlcrDw__>)
+## 7. Ưu điểm và nhược điểm
+### 7.1. Ưu điểm
+#### 7.1.1. Tính linh hoạt
+Thuật toán QR và phân rã QR có thể áp dụng cho cả ma trận thực và phức, ma trận vuông hoặc không vuông.
+#### 7.1.2. Tính chính xác
+Nếu $A$ là ma trận đối xứng và tất cả phần tử là số thực, các trị riêng được sinh ra từ thuật toán QR có độ chính xác rất cao do sai số của chúng sau mỗi lần lặp càng ngày càng nhỏ.
+#### 7.1.3. Hiệu quả với các Dense matrix
+Khác với <em>sparse matrix</em>, dense matrix là ma trận mà phần lớn các phần tử khác $0$, và thuật toán QR rất phù hợp cho việc tìm trị riêng của các ma trận loại này, đặc biệt càng hiệu quả nếu ma trận đó là đối xứng (trong không gian thực), hoặc ma trận Hermitian (trong không gian phức, là ma trận bằng với chuyển vị liên hợp của ma trận đó).
+### 7.2. Nhược điểm
+Trong dự án này, với giả thiết $A, Q, R$ là các ma trận thực, thuật toán QR có những nhược điểm sau:
+#### 7.2.1. Gặp khó khăn trong trường hợp trị riêng là số phức
+Nếu phương trình $det(A-\lambda I)=0$ cho ra nghiệm phức, thuật toán QR tỏ ra không hiệu quả (do thuật toán QR trả về trị riêng là các phần tử nằm trên đường chéo của $A_k$, vốn là các số thực). Ta có thể mở rộng thuật toán QR và các hàm phân rã QR cho không gian phức để giải quyết vấn đề này (xem trong file `complex_qr_algorithm.py`)
+#### 7.2.2. Chi phí tính toán lớn
+Thuật toán phân rã QR có độ phức tạp (về thời gian) là $O(n^3)$ ($n$ là kích thước của ma trận), dẫn đến việc thuật toán QR có độ phức tạp về thời gian là $O(mn^3)$), với $m$ là số lần lặp (nếu $m \ll n$ do hội tụ quá nhanh thì độ phức tạp sẽ là $O(n^3)$).
+#### 7.2.3. Tốn bộ nhớ
+Nếu $A$ không có dạng [sparse matrix](https://en.wikipedia.org/wiki/Sparse_matrix) và kích thước ma trận lớn ($>2000$), bộ nhớ cần thiết cho thuật toán sẽ rất lớn
+#### 7.2.4. Vector riêng rất dễ bị nhiễu loạn
+Mặc dù các giá trị riêng được tính toán chính xác, các vectơ riêng có thể nhạy cảm với nhiễu loạn (noises), đặc biệt đối với các ma trận có các giá trị riêng cách đều nhau.
+#### 7.2.5 Có thể không hội tụ
+Nếu ma trận $A$ không chuẩn (Non-normal matrix, là ma trận thỏa $AA^T\neq A^TA$), thuật toán QR có thể không hội tụ hoặc sinh ra các vector riêng không chính xác.
