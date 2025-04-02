@@ -149,7 +149,7 @@ Với $c = \cos{\theta},s=\sin{\theta}$ ở các hàng và cột thứ $i$ và $
 </ul>
 
 
-Ta cũng có nhận xét: Khi thực hiện phép nhân ma trận $G(i,j,\theta)A$, chỉ hàng $i$ và $j$ của $A$ bị ảnh hưởng, do đó bài toán của trở thành: tìm $c$ và $s$ để:
+Ta cũng có nhận xét: Khi thực hiện phép nhân ma trận $G(i,j,\theta)A$, chỉ hàng $i$ và $j$ của $A$ bị ảnh hưởng, do đó bài toán của trở thành: Tìm $c$ và $s$ để:
 ```math
 \begin{bmatrix}
 c & -s \\
