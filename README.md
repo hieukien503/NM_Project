@@ -27,18 +27,14 @@ Do đó, chúng ta có thể thử phân rã A thành tích của hai ma trận 
 
 ## 3. Phân rã QR
 Phân rã QR là một phần quan trọng, giúp chúng ta xây dựng chuỗi ma trận $A$ của thuật toán QR. Ý tưởng của phương pháp là ta sẽ phân rã từng cột của ma trận $A$ thành tổ hợp tuyến tính của các vector cột trực chuẩn của $Q$. Có $3$ phương pháp được sử dụng:
-  <ul>
-    <li>Gram-Schmidt Process</li>
-    <li>Householder Reflections</li>
-    <li>Givens Rotations</li>
-  </ul>
+- Gram-Schmidt Process
+- Householder Reflections
+- Givens Rotations
 
 Phân rã QR có các tính chất sau:
-<ul>
-  <li>Nếu $rank(A)=n$, khi đó phân rã QR là duy nhất, ngược lại sẽ có nhiều đáp án thỏa mãn cho cặp ma trận ($Q, R$)</li>
-  <li>Nếu $A$ không phải ma trận vuông (ma trận kích thước $m x n,~m\ge n$), ta vẫn định nghĩa phân rã QR, khi đó ma trận $Q$ là ma trận trực giao cấp $m$ và ma trận tam giác trên $R$ có kích thước $m x n$</li>
-  <li>Nếu $A$ là ma trận vuông cấp $n$, các phần tử của $A$ là các số phức, thì khi đó ma trận $Q$ ở đây là ma trận <em>unitary</em> (là ma trận phức có chuyển vị liên hợp - conjugate transpose bằng với nghịch đảo của nó)</li>
-</ul>
+- Nếu $rank(A)=n$, khi đó phân rã QR là duy nhất, ngược lại sẽ có nhiều đáp án thỏa mãn cho cặp ma trận ($Q, R$)</li>
+- Nếu $A$ không phải ma trận vuông (ma trận kích thước $m x n,~m\ge n$), ta vẫn định nghĩa phân rã QR, khi đó ma trận $Q$ là ma trận trực giao cấp $m$ và ma trận tam giác trên $R$ có kích thước $m x n$</li>
+- Nếu $A$ là ma trận vuông cấp $n$, các phần tử của $A$ là các số phức, thì khi đó ma trận $Q$ ở đây là ma trận <em>unitary</em> (là ma trận phức có chuyển vị liên hợp - conjugate transpose bằng với nghịch đảo của nó)</li>
 
 Trong phạm vi của đề tài, chúng ta sẽ chỉ giới hạn ma trận $A$ là ma trận thực, vuông cấp $n\ge 2$
 
@@ -142,11 +138,9 @@ G(i, j, \theta)=\begin{bmatrix}
 \end{bmatrix}
 ```
 Với $c = \cos{\theta},s=\sin{\theta}$ ở các hàng và cột thứ $i$ và $j$. Với $i>j$, phần tử khác $0$ của ma trận $G(i,j,\theta$) được xác định như sau:
-<ul>
-  <li>$g_{kk}=1$, với $k\neq i,j$</li>
-  <li>$g_{kk}=c$, với $k=i,j$</li>
-  <li>$g_{ji}=-g_{ij}=-s$</li>
-</ul>
+- $g_{kk}=1$, với $k\neq i,j$
+- $g_{kk}=c$, với $k=i,j$
+- $g_{ji}=-g_{ij}=-s$
 
 
 Ta cũng có nhận xét: Khi thực hiện phép nhân ma trận $G(i,j,\theta)A$, chỉ hàng $i$ và $j$ của $A$ bị ảnh hưởng, do đó bài toán của trở thành: Tìm $c$ và $s$ để:
@@ -176,12 +170,10 @@ Khi $k\to\infty$, $\left|\left|A\right|\right|_k$ trở thành
 ```
 Khi đó, ta nói ma trận $A$ "hội tụ" đến ma trận $A'$ khi và chỉ khi $\left|\left|A-A'\right|\right|\to 0$ (chuẩn thường được sử dụng là chuẩn $1$ hoặc chuẩn vô cùng, trong source code, tác giả chọn chuẩn $1$, có thể điều chỉnh thông qua biến `norm_ord` trong file `global_constant.py`, muốn chọn chuẩn vô cùng thì điều chỉnh `norm_ord=np.inf`).
 Định nghĩa xong điều kiện hội tụ của ma trận, ta có thể xây dựng thuật toán QR như sau:
-<ol>
-  <li>Khởi tạo $Q_{eigen}=I_{n}$</li>
-  <li>Phân rã $A_k$ (sử dụng các phương pháp phân rã ở trên)</li>
-  <li>Cập nhật $A_k$: $A_{k+1}=R_kQ_k$ và cập nhật ma trận $Q_{eigen}=Q_{eigen}Q_k$</li>
-  <li>Lặp cho đến khi số bước $k$ đạt giới hạn là `max_iter` hoặc khi  $\left|\left|A-A'\right|\right| < tolerance$</li>
-</ol>
+1. Khởi tạo $Q_{eigen}=I_{n}$</li>
+2. Phân rã $A_k$ (sử dụng các phương pháp phân rã ở trên)</li>
+3. Cập nhật $A_k$: $A_{k+1}=R_kQ_k$ và cập nhật ma trận $Q_{eigen}=Q_{eigen}Q_k$</li>
+4. Lặp cho đến khi số bước $k$ đạt giới hạn là `max_iter` hoặc khi  $\left|\left|A-A'\right|\right| < tolerance$
 
 Khi đó, các giá trị trên đường chéo của $A_k$ hội tụ đến các trị riêng của vector $A$, còn ma trận $Q_{eigen}$ sẽ hội tụ đến ma trận $Q$ với các vector cột chính là các vector riêng của ma trận $A$.
 
@@ -198,17 +190,14 @@ Trái ngược với trường hợp $A$ là ma trận trực giao, trường h�
 Trong trường hợp này, $Q=I_n$ và $R=A$ (đây chính là một trường hợp đặc biệt của trường hợp $A$ là ma trận tam giác trên), tuy nhiên, cần phải chú ý dấu của các phần tử trên đường chéo của $A$ để thỏa mãn tính duy nhất của phân rã QR, bằng cách điều chỉnh dấu của các phần tử trên đường chéo của $R$ thành số dương và điều chỉnh dấu của $Q$ tương ứng sao cho $A=QR$ vẫn thỏa mãn
 
 ## 6. Cách chạy dự án
-<p>Để chạy được dự án này, yêu cầu Python 3.12.5 phải được cài đặt sẵn trên máy tính (nên đề xuất cài đặt thêm VSCode hoặc PyCharm), sau đó làm theo các bước sau:
-<ol>
-  <li>Nếu trên máy có cài sẵn `git`, clone project này về máy tính cá nhân bằng lệnh sau:
+<p>Để chạy được dự án này, yêu cầu Python 3.12.5 phải được cài đặt sẵn trên máy tính (nên đề xuất cài đặt thêm VSCode hoặc PyCharm), sau đó làm theo các bước sau:<br>
+  1. Nếu trên máy có cài sẵn `git`, clone project này về máy tính cá nhân bằng lệnh sau:
     
   ```
   git clone https://github.com/hieukien503/NM_Project.git
   ```
   Nếu chưa cài `git`, vào folder `NM_Project`, ấn vào nút `Code` màu xanh lá, chọn "Download ZIP". Sau khi tải xong, hãy giải nén file này ra.
-  </li>
-  <li>Vào VSCode (hoặc PyCharm), mở terminal để có thể chạy file bằng dòng lệnh (CLI - Command Line Interface)</li>
-</ol>
+  2. Vào VSCode (hoặc PyCharm), mở terminal để có thể chạy file bằng dòng lệnh (CLI - Command Line Interface)
 
 Trước khi chạy dự án, gõ `python main.py -h` để xem các flags được thiết kế sẵn cho việc chạy dự án này, các flags đó được liệt kê như trong hình dưới đây:![Screenshot 2025-04-01 150909.png](<https://media-hosting.imagekit.io/9cb7bff5bf604ea1/Screenshot%202025-04-01%20150909.png?Expires=1838103041&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=MYoch08jiUybBagSsIUoJDYpsFM95XTQ4~GYPgS9NfgRKwIxbSC8m4e9bKOMss2x4zuM5~m6PIkXIiJ8F0rH0YHjfO4nJVs8jZ-EO97pKWByrxxJlqmW8rLavoPfLoOoBK4eQvpU1cUI8yaysGT1GvygTIGDk0Z4EMLWvZyoBLmG1Q4lOq~lYqEFzDEXaPkFMH43yGaZPl4QTvjPlZDd0rG4bb35utU~csEVxS~ca3kXYKDWSw~Yi8lyPMF81sffY1mkWaf674GboodSdr7x8ZEpU-uPdpDH0Pms4IpntzvOzhmopgW-kDFeidYtbJJSzVZmVH4hqJqTHzOTy2YBXg__>)
 
