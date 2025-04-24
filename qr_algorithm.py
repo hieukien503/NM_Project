@@ -158,6 +158,38 @@ def givens_rotations(A: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     
     return Q, R
 
+def hessenberg(A: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    def hr(x: np.ndarray) -> tuple[np.ndarray, float]:
+        v = x.copy()
+        v[0] += np.sign(x[0]) * np.linalg.norm(x)
+        v = v / np.linalg.norm(v)
+        beta = 2.0
+        return v, beta
+    
+    A = A.copy().astype(float)
+    n = A.shape[0]
+    Q_total = np.eye(n)
+
+    for k in range(n - 2):
+        x = A[(k + 1):, k]
+        if np.allclose(x, 0):  # already zero below subdiagonal
+            continue
+
+        v, beta = hr(x)
+
+        # Apply from the left: A[(k + 1):, k:] = (I - beta vvᵀ) A[(k + 1):, k:]
+        A[(k + 1):, k:] -= beta * np.outer(v, v @ A[(k + 1):, k:])
+
+        # Apply from the right: A[:, (k + 1):] = A[:, (k + 1):] (I - beta vvᵀ)
+        A[:, (k + 1):] -= beta * np.outer(A[:, (k + 1):] @ v, v)
+
+        # Accumulate Q (optional, if you want the orthogonal similarity)
+        Q_k = np.eye(n)
+        Q_k[(k + 1):, k+1:] -= beta * np.outer(v, v)
+        Q_total = Q_total @ Q_k
+
+    return A, Q_total  # A is now upper Hessenberg
+
 def qr_algorithm(
         A: np.ndarray,
         method: str = 'cgs',
@@ -166,12 +198,10 @@ def qr_algorithm(
     ) -> tuple[np.ndarray, np.ndarray]:
     """Compute the eigenvalues and eigenvectors of matrix A using the QR algorithm."""
     
-    n = A.shape[1]
-    Q_total = np.eye(n)
-    Ak = A.copy()
+    Ak, Q_total = hessenberg(A)
     gb.matrices = [A]
     
-    for i in range(max_iter):
+    for _ in range(max_iter):
         if method == 'cgs':
             Q, R = gram_schmidt(Ak)
 
@@ -199,5 +229,4 @@ def qr_algorithm(
         Ak = Ak_next
     
     eigenvalues = np.diag(Ak)
-    eigenvectors = Q_total
-    return eigenvalues, eigenvectors
+    return eigenvalues, Q_total

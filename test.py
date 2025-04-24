@@ -1,12 +1,11 @@
 from sympy import *
 from scipy.linalg import null_space
 from utils import load_matrix, print_eigens, print_matrix, plot_power_method_convergence, plot_QR_algorithm_convergence
+from qr_algorithm import *
 
 import numpy as np
 import global_constant as gb
 import time
-from qr_algorithm import *
-from complex_qr_algorithm import *
 
 def characteristics_method(A: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     """Compute the eigenvalues and eigenvectors of matrix A using the characteristic polynomial method."""
@@ -96,10 +95,10 @@ def power_method(A: np.ndarray, max_iter: int = 1000, tol: float = 1e-10) -> tup
 class TestCase:
     def __init__ (self, filename: str):
         self.method = {
-            "cgs": gram_schmidt if not gb.args.complex else gram_schmidt_complex,
-            "mgs": modified_gram_schmidt if not gb.args.complex else modified_gram_schmidt_complex,
-            "hr": householder_reflections if not gb.args.complex else householder_reflections_complex,
-            "givens": givens_rotations if not gb.args.complex else givens_rotations_complex
+            "cgs": gram_schmidt,
+            "mgs": modified_gram_schmidt,
+            "hr": householder_reflections,
+            "givens": givens_rotations
         }
 
         self.A = load_matrix(filename)
@@ -124,7 +123,7 @@ class TestCase:
             print_matrix(self.A)
         
         print(f"Time to execute QR decomposition using numpy libraries: {(lib_time_end - lib_time_start):.4f} seconds")
-        print(f"Time to execute QR decomposition using {methods[method]} :{(func_time_end - func_time_start):.4f} seconds")
+        print(f"Time to execute QR decomposition using {methods[method]}: {(func_time_end - func_time_start):.4f} seconds")
         if Q_res.shape[1] < 10:
             print("Matrix Q (from numpy libraries):")
             print_matrix(Q_res)
@@ -155,7 +154,7 @@ class TestCase:
         eigenvalues, eigenvectors = characteristics_method(A1)
         char_poly_end = time.time()
         qr_algo_start = time.time()
-        eigenvals, eigenvecs = qr_algorithm(A2, method, gb.args.test_tol, gb.args.maxiter)
+        eigenvals, eigenvecs = qr_algorithm(A2, method, gb.args.test_tol, gb.args.test_maxiter)
         qr_algo_end = time.time()
         if self.A.shape[0] < 10:
             print("Matrix A:")
