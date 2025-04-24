@@ -177,6 +177,8 @@ Khi đó, ta nói ma trận $A$ "hội tụ" đến ma trận $A'$ khi và chỉ
 
 Khi đó, các giá trị trên đường chéo của $A_k$ hội tụ đến các trị riêng của vector $A$, còn ma trận $Q_{eigen}$ sẽ hội tụ đến ma trận $Q$ với các vector cột chính là các vector riêng của ma trận $A$.
 
+<em>Note: Trong hàm `qr_algorithm` có một dòng: `Ak, Q_total = hessenberg(A)`, dòng lệnh này có tác dụng đưa ma trận `A` về dạng Hessenberg trên (là ma trận có phần tử ở hàng `i`, cột `j` bằng `0` với mọi `i > j + 1`)</em>
+
 ## 5. Trường hợp đặc biệt
 ### 5.1. $A$ là ma trận $0_n$
 Với trường hợp này, phân tích $QR$ của $A$ không phải là duy nhất, tuy nhiên ta có thể chọn một ma trận trực giao $Q$ thỏa mãn là $Q=I_n$, khi đó $R=0_n$
@@ -199,16 +201,19 @@ Trong trường hợp này, $Q=I_n$ và $R=A$ (đây chính là một trường 
   Nếu chưa cài `git`, vào folder `NM_Project`, ấn vào nút `Code` màu xanh lá, chọn "Download ZIP". Sau khi tải xong, hãy giải nén file này ra.
   2. Vào VSCode (hoặc PyCharm), mở terminal để có thể chạy file bằng dòng lệnh (CLI - Command Line Interface)
 
-Trước khi chạy dự án, gõ `python main.py -h` để xem các flags được thiết kế sẵn cho việc chạy dự án này, các flags đó được liệt kê như trong hình dưới đây:![Screenshot 2025-04-01 150909.png](<https://media-hosting.imagekit.io/9cb7bff5bf604ea1/Screenshot%202025-04-01%20150909.png?Expires=1838103041&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=MYoch08jiUybBagSsIUoJDYpsFM95XTQ4~GYPgS9NfgRKwIxbSC8m4e9bKOMss2x4zuM5~m6PIkXIiJ8F0rH0YHjfO4nJVs8jZ-EO97pKWByrxxJlqmW8rLavoPfLoOoBK4eQvpU1cUI8yaysGT1GvygTIGDk0Z4EMLWvZyoBLmG1Q4lOq~lYqEFzDEXaPkFMH43yGaZPl4QTvjPlZDd0rG4bb35utU~csEVxS~ca3kXYKDWSw~Yi8lyPMF81sffY1mkWaf674GboodSdr7x8ZEpU-uPdpDH0Pms4IpntzvOzhmopgW-kDFeidYtbJJSzVZmVH4hqJqTHzOTy2YBXg__>)
+Trước khi chạy dự án, gõ `python main.py -h` để xem các flags được thiết kế sẵn cho việc chạy dự án này, các flags đó được liệt kê như trong hình dưới đây:![Screenshot 2025-04-25 053626.png](<https://media-hosting.imagekit.io/7a73def94c254f2d/Screenshot%202025-04-25%20053626.png?Expires=1840142201&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=tEqYzBkkA-NzGEB0L9NgZvWnNkost-buTbz4HIiGECIBD2nCr0jQ80c30AtmM7bblSQ5~KNWhw1g~NtbfpuwYELTi~MU92BamA9S5YPYywZXnjFAweBdYc5UMCxFF4NGZGeD-q8UZ4mnGE6m4Trn6dSZGqmaaXBwIL-ZBTmRrrTJvYDV8gkQS5daFken4KCB8aIzllob786IM-AlNiluB6dHriV2H71twmqd7zjRUR-T3S5108R84SmJYp819UFJX2G9hJrJ2D7OL2mUV3~Cew4l2LO5ZUEhRZzryu5QC4yMa5z555QRLKAb74YVU9r8LJIqf5gbO-yq5figsw22kg__>)
 
 Các flags sau là bắt buộc:
 <ul>
-  <li>
-    `--run`: Đây là flag dùng để chạy dự án, không nhận tham số đầu vào, nhưng phải có flag `--eigens` (để tìm trị riêng và vector riêng) hoặc `--qr_decompo` (để chạy phân rã QR)</li>
   <li>`--input`: Nhận $1$ tham số đầu vào là đường dẫn đến file input chứa ma trận $A$ (ở đây file chứa ma trận $A$ có tên là `test.txt`)</li>
 </ul>
+Ràng buộc:
+<ul>
+  <li>Chỉ có 1 trong 2 flag: `--run` hoặc `--test` được phép có mặt trong dòng lệnh</li>
+  <li>Chỉ có 1 trong 2 flag: `--eigens` hoặc `--qr_decompo` được phép có mặt trong dòng lệnh</li>
+</ul>
 
-<em>Note: khi chạy flag `--run` đi kèm với flag `--eigens`, sẽ có thông báo chọn thêm các mode để chạy và so sánh kết quả, với 1 là so sánh với phương pháp dùng đa thức đặc trưng truyền thống, 2 và 3 là so sánh kết quả với các hàm có sẵn trong các thư viện của Python. Còn nếu chạy flag `--run` kèm với `--qr_decompo`, chương trình sẽ đánh giá hiệu năng của các phương pháp phân rã QR so với thư viện `numpy` với hàm `numpy.linalg.qr`</em>
+<em>Note: khi chạy flag `--test` đi kèm với flag `--eigens`, sẽ có thông báo chọn thêm các mode để chạy và so sánh kết quả, với 1 là so sánh với phương pháp dùng đa thức đặc trưng truyền thống, 2 và 3 là so sánh kết quả với các hàm có sẵn trong các thư viện của Python. Còn nếu chạy flag `--run` kèm với `--qr_decompo`, chương trình sẽ đánh giá hiệu năng của các phương pháp phân rã QR so với thư viện `numpy` với hàm `numpy.linalg.qr`</em>
 </p>
 
 ## 7. Ưu điểm và nhược điểm
@@ -222,7 +227,7 @@ Khác với <em>sparse matrix</em>, dense matrix là ma trận mà phần lớn 
 ### 7.2. Nhược điểm
 Trong dự án này, với giả thiết $A, Q, R$ là các ma trận thực, thuật toán QR có những nhược điểm sau:
 #### 7.2.1. Gặp khó khăn trong trường hợp trị riêng là số phức
-Nếu phương trình $det(A-\lambda I)=0$ cho ra nghiệm phức, thuật toán QR tỏ ra không hiệu quả (do thuật toán QR trả về trị riêng là các phần tử nằm trên đường chéo của $A_k$, vốn là các số thực). Ta có thể mở rộng thuật toán QR và các hàm phân rã QR cho không gian phức để giải quyết vấn đề này (xem trong file `complex_qr_algorithm.py`)
+Nếu phương trình $det(A-\lambda I)=0$ cho ra nghiệm phức, thuật toán QR tỏ ra không hiệu quả (do thuật toán QR trả về trị riêng là các phần tử nằm trên đường chéo của $A_k$, vốn là các số thực). Để giải quyết trường hợp này, ta cần sử dụng QR Algorithm with shifts (Wilkinson shift hay Francis double-shift).
 #### 7.2.2. Chi phí tính toán lớn
 Thuật toán phân rã QR có độ phức tạp (về thời gian) là $O(n^3)$ ($n$ là kích thước của ma trận), dẫn đến việc thuật toán QR có độ phức tạp về thời gian là $O(mn^3)$), với $m$ là số lần lặp (nếu $m \ll n$ do hội tụ quá nhanh thì độ phức tạp sẽ là $O(n^3)$).
 #### 7.2.3. Tốn bộ nhớ
