@@ -124,13 +124,8 @@ def householder_reflections(A: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         e[0] = np.linalg.norm(x)                # Set the first element of e to the norm of x
         u = x + np.sign(x[0]) * e               # Create the Householder vector
         v = u / np.linalg.norm(u)               # Normalize the Householder vector
-        H = np.eye(n - k) - 2 * np.outer(v, v)  # Create the Householder matrix
-        H = np.block([
-            [np.eye(k), np.zeros((k, n - k))],  # Top-left block is the identity matrix
-            [np.zeros((n - k, k)), H]           # Bottom-right block is the Householder matrix
-        ])
-        A_copy = H @ A_copy                     # Apply the Householder transformation to R
-        Q = Q @ H.T                             # Update Q with the Householder transformation
+        A[k:, k:] -= 2 * np.outer(v, v @ A[k:, k:])
+        Q[:, k:] -= 2 * np.outer(Q[:, k:] @ v, v)
     
     return Q, A_copy
 

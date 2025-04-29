@@ -1,11 +1,14 @@
 from sympy import *
 from scipy.linalg import null_space
-from utils import load_matrix, print_eigens, print_matrix, plot_power_method_convergence, plot_QR_algorithm_convergence
+from utils import load_matrix, print_eigens, print_matrix
 from qr_algorithm import *
 
 import numpy as np
 import global_constant as gb
 import time
+import sys
+
+sys.setrecursionlimit(1000000)                                  # For the square matrix of order >= 1000 
 
 def characteristics_method(A: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     """Compute the eigenvalues and eigenvectors of matrix A using the characteristic polynomial method."""
@@ -13,12 +16,22 @@ def characteristics_method(A: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         raise ValueError("Matrix A must be square")
     
     n = A.shape[1]
-    A_sym = Matrix([[Rational(item) for item in sublist] for sublist in A])
+    A_sym = Matrix(A.tolist()).applyfunc(Rational)
     lam = symbols('lambda')
-    I = Matrix.eye(A_sym.shape[0])
-    char_matrix = A_sym - lam * I
-    char_poly = det(char_matrix).simplify()                 # Setup the characteristics polynomial det(A - lambda.I)
-    solutions = solve(char_poly, lam)                       # Solve for lambda
+    # I = Matrix.eye(A_sym.shape[0])
+    # char_matrix = A_sym - lam * I
+    # char_poly = det(char_matrix).simplify()                   # Setup the characteristics polynomial det(A - lambda.I)
+    # solutions = solve(char_poly, lam)                         # Solve for lambda
+
+    # char_poly = A_sym.charpoly(lam).as_expr()                 # Calculate the characteristics polynomial
+    # solutions = solve(char_poly, lam)                         # Solve for lambda (exact solution, symbolically)
+
+    char_poly = A_sym.charpoly(lam).as_expr()                 # Calculate the characteristics polynomial
+    solutions = nroots(
+        char_poly,
+        n=15,
+        maxsteps=gb.args.test_maxiter
+    )                                                         # Solve for lambda (approximate solution, numerically)
     solutions = [re(val).evalf() for val in solutions if abs(val.as_real_imag()[1]) < gb.imag_tol]
     eigenvalues = []
     eigenvectors = []
@@ -77,7 +90,7 @@ def power_method(A: np.ndarray, max_iter: int = 1000, tol: float = 1e-10) -> tup
         x_new = A @ x
         x_new /= np.linalg.norm(x_new)
 
-        eigenvalue_new = (x_new.T @ A @ x_new) / (x_new.T @ x_new)
+        eigenvalue_new: float = (x_new.T @ A @ x_new) / (x_new.T @ x_new)
         difference = np.linalg.norm(x_new - x)
 
         if gb.VISUALIZE:
@@ -89,8 +102,8 @@ def power_method(A: np.ndarray, max_iter: int = 1000, tol: float = 1e-10) -> tup
         
         x = x_new
         eigenvalue = eigenvalue_new
-        
-    return eigenvalue, x
+    
+    return np.array([eigenvalue]), x
 
 class TestCase:
     def __init__ (self, filename: str):
@@ -140,144 +153,48 @@ class TestCase:
             print(f"Matrix R (from {methods[method]}):")
             print_matrix(R_test)
     
-    def test_eigen_01(self, method: str):
+    def test_eigen(self):
         methods = {
             "cgs": "Classical Gram-Schmidt Process",
             "mgs": "Modified Gram-Schmidt Process",
-            "chr": "Classical Householder Reflections",
-            "mhr": "Modified Householder Reflections",
+            "hr": "Householder Reflections",
             "givens": "Givens Rotations"
         }
-        
-        A1, A2 = self.A.copy(), self.A.copy()
-        char_poly_start = time.time()
-        eigenvalues, eigenvectors = characteristics_method(A1)
-        char_poly_end = time.time()
-        qr_algo_start = time.time()
-        eigenvals, eigenvecs = qr_algorithm(A2, method, gb.args.test_tol, gb.args.test_maxiter)
-        qr_algo_end = time.time()
+
         if self.A.shape[0] < 10:
             print("Matrix A:")
             print_matrix(self.A)
         
-        if len(eigenvalues) < 10 and len(eigenvectors) < 10:
-            print("Eigenvalues and Eigenvectors")
-            print("Using CharPoly Method:")
-            print_eigens(eigenvalues, eigenvectors)
-        
-        if len(eigenvals) < 10 and len(eigenvecs) < 10:
-            print(f"Using QR Algorithm with {methods[method]}:")
-            print_eigens(eigenvals, eigenvecs)
-        
-        print(f"Time to find eigenvalues and eigenvectors using CharPoly Method: {(char_poly_end - char_poly_start):.4f} seconds")
-        print(f"Time to find eigenvalues and eigenvectors using QR Algorithm with {methods[method]}: {(qr_algo_end - qr_algo_start):.4f} seconds")
-        if gb.VISUALIZE:
-            plot_QR_algorithm_convergence(gb.matrices)
-    
-    def test_eigen_02(self, method: str):
-        if method not in list(self.method.keys()): return
-        methods = {
-            "cgs": "Classical Gram-Schmidt Process",
-            "mgs": "Modified Gram-Schmidt Process",
-            "chr": "Classical Householder Reflections",
-            "mhr": "Modified Householder Reflections",
-            "givens": "Givens Rotations"
-        }
-        
-        A1, A2 = self.A.copy(), self.A.copy()
-        eigen_numpy_start = time.time()
-        eigenvalues, eigenvectors = generate_eig_numpy(A1)
-        eigen_numpy_end = time.time()
-        qr_algo_start = time.time()
-        eigenvals, eigenvecs = qr_algorithm(A2, method, gb.args.test_tol, gb.args.test_maxiter)
-        qr_algo_end = time.time()
-        if self.A.shape[0] < 10:
-            print("Matrix A:")
-            print_matrix(self.A)
-        
-        if len(eigenvalues) < 10 and len(eigenvectors) < 10:
-            print("Eigenvalues and Eigenvectors")
-            print("Using np.linalg.eig:")
-            print_eigens(eigenvalues, eigenvectors)
-        
-        if len(eigenvals) < 10 and len(eigenvecs) < 10:
-            print(f"Using QR Algorithm with {methods[method]}:")
-            print_eigens(eigenvals, eigenvecs)
+        # A1 = self.A.copy()
+        # char_poly_start = time.time()
+        # eigenvalues, eigenvectors = characteristics_method(A1)
+        # char_poly_end = time.time()
+        # if len(eigenvalues) < 10 and len(eigenvectors) < 10:
+        #     print("Eigenvalues and Eigenvectors")
+        #     print("Using CharPoly Method:")
+        #     print_eigens(eigenvalues, eigenvectors)
 
-        print(f"Time to find eigenvalues and eigenvectors using np.linalg.eig: {(eigen_numpy_end - eigen_numpy_start):.4f} seconds")
-        print(f"Time to find eigenvalues and eigenvectors using QR Algorithm with {methods[method]}: {(qr_algo_end - qr_algo_start):.4f} seconds")
-        if gb.VISUALIZE:
-            plot_QR_algorithm_convergence(gb.matrices)
-    
-    def test_eigen_03(self, method: str):
-        if method not in list(self.method.keys()): return
-        methods = {
-            "cgs": "Classical Gram-Schmidt Process",
-            "mgs": "Modified Gram-Schmidt Process",
-            "chr": "Classical Householder Reflections",
-            "mhr": "Modified Householder Reflections",
-            "givens": "Givens Rotations"
-        }
+        # print(f"Time to find eigenvalues and eigenvectors using CharPoly Method: {(char_poly_end - char_poly_start):.4f} seconds")
         
-        A1, A2 = self.A.copy(), self.A.copy()
-        eigen_sympy_start = time.time()
-        eigenvalues, eigenvectors = generate_eig_sympy(A1)
-        eigen_sympy_end = time.time()
-        qr_algo_start = time.time()
-        eigenvals, eigenvecs = qr_algorithm(A2, method, gb.args.test_tol, gb.args.test_maxiter)
-        qr_algo_end = time.time()
-        if self.A.shape[0] < 10:
-            print("Matrix A:")
-            print_matrix(self.A)
+        for method in ["cgs", "mgs", "hr"]:
+            A2 = self.A.copy()
+            qr_algo_start = time.time()
+            eigenvals, eigenvecs = qr_algorithm(A2, method, gb.args.test_tol, gb.args.test_maxiter)
+            qr_algo_end = time.time()
+            
+            if len(eigenvals) < 10 and len(eigenvecs) < 10:
+                print(f"Using QR Algorithm with {methods[method]}:")
+                print_eigens(eigenvals, eigenvecs)
+            
+            print(f"Time to find eigenvalues and eigenvectors using QR Algorithm with {methods[method]}: {(qr_algo_end - qr_algo_start):.4f} seconds")
         
-        if len(eigenvalues) < 10 and len(eigenvectors) < 10:
-            print("Eigenvalues and Eigenvectors")
-            print("Using sympy.Matrix.eigenvects:")
-            print_eigens(eigenvalues, eigenvectors)
-        
-        if len(eigenvals) < 10 and len(eigenvecs) < 10:
-            print(f"Using QR Algorithm with {methods[method]}:")
-            print_eigens(eigenvals, eigenvecs)
-
-        print(f"Time to find eigenvalues and eigenvectors using sympy.Matrix.eigenvects: {(eigen_sympy_end - eigen_sympy_start):.4f} seconds")
-        print(f"Time to find eigenvalues and eigenvectors using QR Algorithm with {methods[method]}: {(qr_algo_end - qr_algo_start):.4f} seconds")
-        if gb.VISUALIZE:
-            plot_QR_algorithm_convergence(gb.matrices)
-
-    def test_power_method(self, method: str):
-        if method not in list(self.method.keys()): return
-        methods = {
-            "cgs": "Classical Gram-Schmidt Process",
-            "mgs": "Modified Gram-Schmidt Process",
-            "chr": "Classical Householder Reflections",
-            "mhr": "Modified Householder Reflections",
-            "givens": "Givens Rotations"
-        }
-        
-        A1, A2 = self.A.copy(), self.A.copy()
+        A3 = self.A.copy()
         power_method_start = time.time()
-        dom_eigen_value, dom_eigen_vector = power_method(A1, gb.args.test_maxiter, gb.args.test_tol)
+        dom_eigen_value, dom_eigen_vector = power_method(A3, gb.args.test_maxiter, gb.args.test_tol)
+        dom_eigen_vector = dom_eigen_vector.reshape((dom_eigen_vector.shape[0], 1))
         power_method_end = time.time()
-        qr_algo_start = time.time()
-        eigenvals, eigenvecs = qr_algorithm(A2, method, gb.args.test_tol, gb.args.test_maxiter)
-        qr_algo_end = time.time()
-        if self.A.shape[0] < 10:
-            print("Matrix A:")
-            print_matrix(self.A)
-        
-        if len(dom_eigen_vector) < 10:
-            print("Dominant eigenvalue and eigenvector")
-            print("Using Power Method:")
+        if len(dom_eigen_value) < 10 and len(dom_eigen_vector) < 10:
+            print("Dominant eigenvector and eigenvalue using Power Method:")
             print_eigens(dom_eigen_value, dom_eigen_vector)
-        
-        print(f"Using QR Algorithm with {methods[method]}:")
-        idx = np.argmax(np.abs(eigenvals))
-        dom_eigen_val = eigenvals[idx]
-        dom_eigen_vec = eigenvecs[:, idx]
-        if len(dom_eigen_vec) < 10:
-            print_eigens(dom_eigen_val, dom_eigen_vec)
-        
+            
         print(f"Time to find eigenvalues and eigenvectors using Power Method: {(power_method_end - power_method_start):.4f} seconds")
-        print(f"Time to find eigenvalues and eigenvectors using QR Algorithm with {methods[method]}: {(qr_algo_end - qr_algo_start):.4f} seconds")
-        if gb.VISUALIZE:
-            plot_power_method_convergence(np.array(gb.vectors), np.array(gb.eigenvalues))

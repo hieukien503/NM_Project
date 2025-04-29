@@ -18,14 +18,14 @@ parser.add_argument("--run", action="store_true",
 parser.add_argument("--test", action="store_true",
                     help="Test the QR decomposition and algorithm.")
 parser.add_argument("--maxsize", type=int, default=5,
-                    help="Specify the maximum size of the generated matrix (only works if --gen or --test is enabled)")
+                    help="Specify the maximum size of the generated matrix (only works if --gen is enabled)")
 parser.add_argument("--low", type=int, default=-200,
-            help="Specify the lower bound for the elements of the generated matrix (only works if --gen or --test is enabled)")
+            help="Specify the lower bound for the elements of the generated matrix (only works if --gen is enabled)")
 parser.add_argument("--high", type=int, default=200,
-            help="Specify the upper bound for the elements of the generated matrix (only works if --gen or --test is enabled)")
-parser.add_argument("--eigens", choices=["cgs", "mgs", "hr", "givens", "power"], 
+            help="Specify the upper bound for the elements of the generated matrix (only works if --gen is enabled)")
+parser.add_argument("--eigens", action="store_true", 
                     help="Run the QR algorithm using the specified method.")
-parser.add_argument("--qr_decompo", choices=["cgs", "mgs", "hr", "givens"], 
+parser.add_argument("--qr_decompo", action="store_true", 
                     help="Perform QR decomposition using the specified method.")
 parser.add_argument("--input", type=str, required=True,
                     help="Input file contains the matrix.")
@@ -64,34 +64,14 @@ if __name__ == '__main__':
     if gb.args.test:
         testcase = TestCase(filename=gb.args.input)
         if gb.args.qr_decompo:
-            testcase.test_np_linalg_qr(gb.args.qr_decompo)
+            for method in ["cgs", "mgs", "hr", "givens"]:
+                testcase.test_np_linalg_qr(method=method)
         
         else:
-            if gb.args.eigens != "power":
-                while True:
-                    option = input("Choose testcase (1: CharPoly, 2: numpy.linalg.eig, 3: sympy.Matrix.eigenvects): ")
-                    match option:
-                        case "1":
-                            testcase.test_eigen_01(gb.args.eigens)
-                            break
-
-                        case "2":
-                            testcase.test_eigen_02(gb.args.eigens)
-                            break
-
-                        case "3":
-                            testcase.test_eigen_03(gb.args.eigens)
-                            break
-
-                        case _:
-                            continue
-            
-            else:
-                testcase.test_power_method(gb.args.eigens)
+            testcase.test_eigen()
     
     else:
         if gb.args.qr_decompo:
-            method = gb.args.qr_decompo
             methods = {
                 "cgs": "Gram-Schmidt Process",
                 "mgs": "Modified Gram-Schmidt Process",
@@ -107,44 +87,49 @@ if __name__ == '__main__':
             }
             
             A = load_matrix(gb.args.input)
-            A_copy = A.copy()
-            func_time_start = time.time()
-            Q, R = method_func[method](A_copy)
-            func_time_end = time.time()
             if A.shape[1] < 10:
                 print("Matrix A:")
                 print_matrix(A)
-            
-            print(f"Time to execute QR decomposition using {methods[method]}: {(func_time_end - func_time_start):.4f} seconds")
-            if Q.shape[1] < 10:
-                print(f"Matrix Q (from {methods[method]}):")
-                print_matrix(Q)
-            
-            if R.shape[1] < 10:
-                print(f"Matrix R (from {methods[method]}):")
-                print_matrix(R)
+
+            for method in ["cgs", "mgs", "hr", "givens"]:
+                A_copy = A.copy()
+                func_time_start = time.time()
+                Q, R = method_func[method](A_copy)
+                func_time_end = time.time()
+
+                if Q.shape[1] < 10:
+                    print(f"\nMatrix Q (from {methods[method]}):")
+                    print_matrix(Q)
+                
+                if R.shape[1] < 10:
+                    print(f"\nMatrix R (from {methods[method]}):")
+                    print_matrix(R)
+                
+                print(f"Time to execute QR decomposition using {methods[method]}: {(func_time_end - func_time_start):.4f} seconds")
         
         else:
-            method = gb.args.eigens
             methods = {
                 "cgs": "Gram-Schmidt Process",
                 "mgs": "Modified Gram-Schmidt Process",
                 "hr": "Householder Reflections",
                 "givens": "Givens Rotations"
             }
+
             A = load_matrix(gb.args.input)
-            A_copy = A.copy()
-            qr_time_start = time.time()
-            eigenvals, eigenvecs = qr_algorithm(A_copy, method, gb.args.tolerance, gb.args.maxiter)
-            qr_time_end = time.time()
             if A.shape[0] < 10:
                 print("Matrix A:")
                 print_matrix(A)
-            
-            if len(eigenvals) < 10 and len(eigenvecs) < 10:
-                print(f"Using QR Algorithm with {methods[method]}:")
-                print_eigens(eigenvals, eigenvecs)
-            
-            print(f"Time to find eigenvalues and eigenvectors using QR Algorithm with {methods[method]}: {(qr_time_end - qr_time_start):.4f} seconds")
-            if gb.VISUALIZE:
-                plot_QR_algorithm_convergence(gb.matrices)
+
+            for method in ["cgs", "mgs", "hr", "givens"]:
+                A_copy = A.copy()
+                qr_time_start = time.time()
+                eigenvals, eigenvecs = qr_algorithm(A_copy, method, gb.args.tolerance, gb.args.maxiter)
+                qr_time_end = time.time()
+                
+                if len(eigenvals) < 10 and len(eigenvecs) < 10:
+                    print(f"Using QR Algorithm with {methods[method]}:")
+                    print_eigens(eigenvals, eigenvecs)
+                
+                print(f"Time to find eigenvalues and eigenvectors using QR Algorithm with {methods[method]}: {(qr_time_end - qr_time_start):.4f} seconds")
+                if gb.VISUALIZE:
+                    plot_QR_algorithm_convergence(gb.matrices)

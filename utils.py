@@ -8,7 +8,6 @@ def plot_power_method_convergence(
     vectors,
     eigenvalues
 ):
-
     # 2D Plot: Convergence of differences
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
 
@@ -35,7 +34,7 @@ def plot_power_method_convergence(
     plt.show()
 
 def plot_QR_algorithm_convergence(
-    matrices,
+    matrices
 ):
     fig, ax1 = plt.subplots(figsize=(6, 6))
     cax = ax1.matshow(matrices[0], cmap='viridis', vmin=0)
@@ -84,7 +83,7 @@ def gen_sym_matrix(filename: str, low: int, high: int, maxsize: int = 5):
         raise ValueError("`low` must smaller than `high`")
     
     with open(file=filename, mode='+w') as f:
-        A = np.random.uniform(-200, 200, size=(maxsize, maxsize))
+        A = np.random.uniform(low, high, size=(maxsize, maxsize))
         A = (A + A.T) / 2
         A = A.tolist()
         lines = [" ".join([str(x) for x in item]) for item in A]
