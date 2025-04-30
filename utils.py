@@ -96,7 +96,16 @@ def print_matrix(matrix: np.ndarray):
     print("\n".join([" ".join([f"{item:.6f}" for item in sublist]) for sublist in matrix]))
 
 def print_eigens(eigenvalues, eigenvectors):
-    print(f'{"Eigenvalue":<20} {"Eigenvector":<20}')
+    print(f'{"Eigenvalue":<30} {"Eigenvector":<30}')
     for val, vec in zip(eigenvalues, eigenvectors.T):
-        vec_str = ', '.join(f'{x:.6f}' for x in vec)
-        print(f'{val:<20.6f} {vec_str:<20}')
+        # Format complex eigenvalue
+        val = complex(val)
+        val_str = f'{val.real:.6f} + {val.imag:.6f}j' if val.imag else f'{val.real:.6f}'
+
+        # Format each component of the eigenvector
+        vec_str = ', '.join(
+            f'{x.real:.6f} + {x.imag:.6f}j' if x.imag else f'{x.real:.6f}'
+            for x in vec
+        )
+
+        print(f'{val_str:<30} {vec_str:<30}')

@@ -13,20 +13,16 @@ parser.add_argument("--gen", action="store_true",
                     help="Generate a square matrix (use --sym for a symmetric matrix) and store it in the input file")
 parser.add_argument("--sym", action="store_true", 
                     help="Enable symmetric matrix mode")
-parser.add_argument("--run", action="store_true",
-                    help="Run the QR decomposition and algorithm.")
+parser.add_argument("--run", choices=["QR", "Wilkinson", "Francis"], default=None,
+                    help="Run the QR algorithm with the specified method.")
 parser.add_argument("--test", action="store_true",
-                    help="Test the QR decomposition and algorithm.")
+                    help="Test the QR algorithm.")
 parser.add_argument("--maxsize", type=int, default=5,
                     help="Specify the maximum size of the generated matrix (only works if --gen is enabled)")
 parser.add_argument("--low", type=int, default=-200,
             help="Specify the lower bound for the elements of the generated matrix (only works if --gen is enabled)")
 parser.add_argument("--high", type=int, default=200,
             help="Specify the upper bound for the elements of the generated matrix (only works if --gen is enabled)")
-parser.add_argument("--eigens", action="store_true", 
-                    help="Run the QR algorithm using the specified method.")
-parser.add_argument("--qr_decompo", action="store_true", 
-                    help="Perform QR decomposition using the specified method.")
 parser.add_argument("--input", type=str, required=True,
                     help="Input file contains the matrix.")
 parser.add_argument("--visualize", action="store_true", 
@@ -42,12 +38,6 @@ parser.add_argument("--test_tol", type=float, default=1e-6,
 
 gb.args = parser.parse_args()
 if __name__ == '__main__':
-    if gb.args.eigens and gb.args.qr_decompo:
-        raise ValueError("Only --eigens or --qr_decompo is specified during the project")
-    
-    if not gb.args.eigens and not gb.args.qr_decompo:
-        raise ValueError("Must specify --eigens or --qr_decompo")
-    
     if not gb.args.run and not gb.args.test:
         raise ValueError("Must specify --run or --test")
     
@@ -63,73 +53,33 @@ if __name__ == '__main__':
 
     if gb.args.test:
         testcase = TestCase(filename=gb.args.input)
-        if gb.args.qr_decompo:
-            for method in ["cgs", "mgs", "hr", "givens"]:
-                testcase.test_np_linalg_qr(method=method)
-        
-        else:
-            testcase.test_eigen()
+        testcase.test_eigen()
     
     else:
-        if gb.args.qr_decompo:
-            methods = {
-                "cgs": "Gram-Schmidt Process",
-                "mgs": "Modified Gram-Schmidt Process",
-                "hr": "Householder Reflections",
-                "givens": "Givens Rotations"
-            }
+        methods = {
+            "QR": qr_algorithm,
+            "Wilkinson": qr_algorithm_wilkinson,
+            "Francis": francis_double_shift_qr
+        }
 
-            method_func = {
-                "cgs": gram_schmidt,
-                "mgs": modified_gram_schmidt,
-                "hr": householder_reflections,
-                "givens": givens_rotations
-            }
-            
-            A = load_matrix(gb.args.input)
-            if A.shape[1] < 10:
-                print("Matrix A:")
-                print_matrix(A)
-
-            for method in ["cgs", "mgs", "hr", "givens"]:
-                A_copy = A.copy()
-                func_time_start = time.time()
-                Q, R = method_func[method](A_copy)
-                func_time_end = time.time()
-
-                if Q.shape[1] < 10:
-                    print(f"\nMatrix Q (from {methods[method]}):")
-                    print_matrix(Q)
-                
-                if R.shape[1] < 10:
-                    print(f"\nMatrix R (from {methods[method]}):")
-                    print_matrix(R)
-                
-                print(f"Time to execute QR decomposition using {methods[method]}: {(func_time_end - func_time_start):.4f} seconds")
+        if gb.args.run not in methods:
+            raise ValueError(f"Invalid method: {gb.args.run}. Choose from {list(methods.keys())}.")
         
-        else:
-            methods = {
-                "cgs": "Gram-Schmidt Process",
-                "mgs": "Modified Gram-Schmidt Process",
-                "hr": "Householder Reflections",
-                "givens": "Givens Rotations"
-            }
+        method = methods[gb.args.run]
+        A = load_matrix(gb.args.input)
+        if A.shape[0] < 10:
+            print("Matrix A:")
+            print_matrix(A)
 
-            A = load_matrix(gb.args.input)
-            if A.shape[0] < 10:
-                print("Matrix A:")
-                print_matrix(A)
-
-            for method in ["cgs", "mgs", "hr", "givens"]:
-                A_copy = A.copy()
-                qr_time_start = time.time()
-                eigenvals, eigenvecs = qr_algorithm(A_copy, method, gb.args.tolerance, gb.args.maxiter)
-                qr_time_end = time.time()
-                
-                if len(eigenvals) < 10 and len(eigenvecs) < 10:
-                    print(f"Using QR Algorithm with {methods[method]}:")
-                    print_eigens(eigenvals, eigenvecs)
-                
-                print(f"Time to find eigenvalues and eigenvectors using QR Algorithm with {methods[method]}: {(qr_time_end - qr_time_start):.4f} seconds")
-                if gb.VISUALIZE:
-                    plot_QR_algorithm_convergence(gb.matrices)
+        A2 = A.copy()
+        qr_algo_start = time.time()
+        eigenvals, eigenvecs = method(A2, gb.args.test_maxiter, gb.args.test_tol)
+        qr_algo_end = time.time()
+        
+        if len(eigenvals) < 10 and len(eigenvecs) < 10:
+            print(f"Using QR Algorithm with {method}:")
+            print_eigens(eigenvals, eigenvecs)
+        
+        print(f"Time to find eigenvalues and eigenvectors using {methods}: {(qr_algo_end - qr_algo_start):.4f} seconds")
+        if gb.VISUALIZE:
+            plot_QR_algorithm_convergence(gb.matrices)
