@@ -13,7 +13,7 @@ parser.add_argument("--gen", action="store_true",
                     help="Generate a square matrix (use --sym for a symmetric matrix) and store it in the input file")
 parser.add_argument("--sym", action="store_true", 
                     help="Enable symmetric matrix mode")
-parser.add_argument("--run", choices=["QR", "Wilkinson", "Francis"], default=None,
+parser.add_argument("--run", choices=["qr", "wilkinson", "francis"], default=None,
                     help="Run the QR algorithm with the specified method.")
 parser.add_argument("--test", action="store_true",
                     help="Test the QR algorithm.")
@@ -57,9 +57,15 @@ if __name__ == '__main__':
     
     else:
         methods = {
-            "QR": qr_algorithm,
-            "Wilkinson": qr_algorithm_wilkinson,
-            "Francis": francis_double_shift_qr
+            "qr": qr_algorithm,
+            "wilkinson": qr_algorithm_wilkinson,
+            "francis": francis_double_shift_qr
+        }
+
+        method_names = {
+            "qr": "QR Algorithm",
+            "wilkinson": "QR Algorithm with Wilkinson Shift",
+            "francis": "Francis Double Shift QR"
         }
 
         if gb.args.run not in methods:
@@ -80,6 +86,6 @@ if __name__ == '__main__':
             print(f"Using QR Algorithm with {method}:")
             print_eigens(eigenvals, eigenvecs)
         
-        print(f"Time to find eigenvalues and eigenvectors using {methods}: {(qr_algo_end - qr_algo_start):.4f} seconds")
+        print(f"Time to find eigenvalues and eigenvectors using {method_names[gb.args.run]}: {(qr_algo_end - qr_algo_start):.4f} seconds")
         if gb.VISUALIZE:
             plot_QR_algorithm_convergence(gb.matrices)

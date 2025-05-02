@@ -11,7 +11,7 @@ def qr_algorithm(
     
     Ak = hessenberg(A)
     Q_total = np.eye(A.shape[0])
-    gb.matrices = [A]
+    gb.matrices = [Ak]
     
     for _ in range(max_iter):
         Q, R = np.linalg.qr(Ak, mode='complete')
@@ -94,7 +94,7 @@ def qr_algorithm_wilkinson(
         c = H[n - 1, n - 2]
         d = H[n - 1, n - 1]
 
-        roots = np.roots([1, -(a + d), a * d - b * c])
+        roots = np.roots([1, -(a + d), a * d - b * c]).astype(dtype=np.complex64)
         # Choose the root closest to the bottom-right eigenvalue
         mu = roots[np.argmin(np.abs(roots - d))]
         return mu
@@ -105,8 +105,8 @@ def qr_algorithm_wilkinson(
 
     H = hessenberg(A)
     H = H.astype(complex)
-    gb.matrices.append(H.copy())
-    Q_total = np.eye(n, dtype=complex)
+    gb.matrices = [H.copy()]
+    Q_total = np.eye(n, dtype=np.complex64)
     iterations = 0
     m = n
 
@@ -116,10 +116,10 @@ def qr_algorithm_wilkinson(
 
         # Wilkinson shift
         mu = wilkinson_shift(H[:m, :m])
-        shift_matrix = mu * np.identity(m)
+        shift_matrix = mu * np.eye(m)
         Q, R = np.linalg.qr(H[:m, :m] - shift_matrix)
         H[:m, :m] = R @ Q + shift_matrix
-        Q_full = np.eye(n, dtype=complex)
+        Q_full = np.eye(n, dtype=np.complex64)
         Q_full[:m, :m] = Q
         Q_total = Q_total @ Q_full
 
@@ -156,7 +156,7 @@ def francis_double_shift_qr(
         """Compute Householder matrix P such that P @ x = alpha * e1"""
         norm_x = np.linalg.norm(x)
         if norm_x == 0:
-            return np.eye(len(x), dtype=complex)
+            return np.eye(len(x), dtype=np.complex64)
         
         v = x.copy()
         sign = x[0] / abs(x[0]) if x[0] != 0 else 1.0
@@ -168,17 +168,17 @@ def francis_double_shift_qr(
     def givens_rotation(a, b):
         """Compute Givens rotation matrix G such that G.T @ [a; b] = [r; 0]"""
         if a == 0 and b == 0:
-            return np.eye(2, dtype=complex)
+            return np.eye(2, dtype=np.complex64)
         
         r = np.linalg.norm([a, b])
         c, s = a / r, -b / r if r != 0 else (1, 0)
-        return np.array([[c, -np.conj(s)], [s, np.conj(c)]], dtype=complex)
+        return np.array([[c, -np.conj(s)], [s, np.conj(c)]], dtype=np.complex64)
 
     H = hessenberg(H)
     H = H.astype(complex)
     n = H.shape[0]
-    gb.matrices.append(H.copy())
-    Q_total = np.eye(n, dtype=complex)
+    gb.matrices = [H.copy()]
+    Q_total = np.eye(n, dtype=np.complex64)
     p = n
     iter_count = 0
 
@@ -207,7 +207,7 @@ def francis_double_shift_qr(
             # Apply from the right
             H[0 : r_end, k : (k + 3)] = H[0 : r_end, k : (k + 3)] @ Pk.T
 
-            Pk_full = np.eye(n, dtype=complex)
+            Pk_full = np.eye(n, dtype=np.complex64)
             Pk_full[k : (k + 3), k : (k + 3)] = Pk
             Q_total = Q_total @ Pk_full.T
 
@@ -225,7 +225,7 @@ def francis_double_shift_qr(
 
         # Apply from the right
         H[0 : p, (p - 2) : p] = H[0 : p, (p - 2) : p] @ G.T
-        Gfull = np.eye(n, dtype=complex)
+        Gfull = np.eye(n, dtype=np.complex64)
         Gfull[(p - 2) : p, (p - 2) : p] = G
         Q_total = Q_total @ Gfull.T
 

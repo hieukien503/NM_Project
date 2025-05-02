@@ -1,6 +1,6 @@
 from sympy import *
 from scipy.linalg import null_space
-from utils import load_matrix, print_eigens, print_matrix
+from utils import load_matrix, print_eigens, print_matrix, plot_power_method_convergence
 from qr_algorithm import *
 
 import numpy as np
@@ -29,8 +29,8 @@ def characteristics_method(A: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         n=15,
         maxsteps=gb.args.test_maxiter
     )                                                         # Solve for lambda (approximate solution, numerically)
-    solutions = [val.evalf() for val in solutions]            # Evaluate the solutions to floating-point numbers
-    solutions = np.array(solutions, dtype=np.complex64)       # Convert the solutions to complex numbers
+    solutions = [val.evalf() for val in solutions]              # Evaluate the solutions to floating-point numbers
+    solutions = np.array(solutions, dtype=np.complex64)         # Convert the solutions to complex numbers
     eigenvalues = []
     eigenvectors = []
     for eigenvalue in solutions:
@@ -73,35 +73,30 @@ def QR_decompostion(A: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
 
 def power_method(A: np.ndarray, max_iter: int = 1000, tol: float = 1e-10) -> tuple[np.ndarray, np.ndarray]:
     """Compute the dominant eigenvalue and eigenvector of matrix A using the power method."""
-    if A.size == 0:
-        raise ValueError("Matrix A must not be empty")
-    
-    if A.shape[0] != A.shape[1]:
-        raise ValueError("Matrix A must be square")
-    
-    n = A.shape[0]
-    x = np.random.rand(n)
-    x /= np.linalg.norm(x)
-    eigenvalue = 0.0
-    
+
+    n, _ = A.shape
+    b_k = np.random.rand(n)
+
     for _ in range(max_iter):
-        x_new = A @ x
-        x_new /= np.linalg.norm(x_new)
+        # Matrix-vector multiplication
+        b_k1 = A @ b_k
 
-        eigenvalue_new: float = (x_new.T @ A @ x_new) / (x_new.T @ x_new)
-        difference = np.linalg.norm(x_new - x)
+        # Normalize the resulting vector
+        b_k1_norm = np.linalg.norm(b_k1)
+        if b_k1_norm == 0:
+            raise ValueError("Encountered zero vector during iteration.")
+        b_k1 = b_k1 / b_k1_norm
 
-        if gb.VISUALIZE:
-            gb.vectors.append(x_new)
-            gb.eigenvalues.append(eigenvalue_new)
-            
-        if difference < tol:
+        # Check for convergence
+        if np.linalg.norm(b_k1 - b_k) < tol:
             break
-        
-        x = x_new
-        eigenvalue = eigenvalue_new
-    
-    return np.array([eigenvalue]), x
+
+        b_k = b_k1
+
+    # Rayleigh quotient for eigenvalue approximation
+    eigenvalue = (b_k.T @ A @ b_k) / (b_k.T @ b_k)
+    eigenvector = b_k
+    return np.array([eigenvalue]), eigenvector
 
 class TestCase:
     def __init__ (self, filename: str):
