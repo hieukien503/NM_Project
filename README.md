@@ -62,7 +62,7 @@ u_3 = v_3 - proj_{u_1} v_3 - proj_{u_2} v_3,~e_3 = \dfrac{u_3}{\left|\left|u_3\r
 ```math
 u_k = v_k - \sum_{i=1}^{k-1} proj_{u_i} v_k,~e_k = \dfrac{u_k}{\left|\left|u_k\right|\right|}
 ```
-Áp dụng quy trình Gram-Schmidt cho ma trận $A$, với chú ý rằng nếu $rank(A) = k < n$, khi đó chỉ $k$ cột đầu tiên của $Q$ là $k$ vector trực chuẩn cơ sở của không gian con sinh bởi các cột của ma trận $A$.
+Áp dụng quy trình Gram-Schmidt cho ma trận $A$, với chú ý rằng nếu $rank(A) = k < n$, khi đó chỉ $k$ cột đầu tiên của $Q$ là $k$ vector trực chuẩn là cơ sở của không gian con sinh bởi các cột của ma trận $A$.
 Ta thu được $Q=\left[e_1\quad e_2 \quad\cdots\quad e_n\right]$ và
 ```math
 R=\begin{bmatrix}
@@ -159,7 +159,7 @@ r \\
 Trong đó $r=\sqrt{a^2+b^2}$, $a$ và $b$ là hai phần tử thuộc cùng một cột của hàng $i$ và $j$ của ma trận $A$. Rõ ràng, một bộ số $(c, s)$ thỏa mãn là $\left(\dfrac{a}{r}, \dfrac{b}{r}\right)$, tuy nhiên việc tính $r$ có thể gây ra tình trạng bị tràn số. Hiện nay nhiều ngôn ngữ lập trình sử dụng hàm `hypot`, một phương pháp tính $r$ mà không sử dụng hàm căn bậc $2$ (về hàm `hypot`, mọi người có thể tham khảo link sau: [hypot implementation](https://calhoun.nps.edu/server/api/core/bitstreams/a0926429-924e-42e7-bcd6-d077e88595c4/content?utm_source=chatgpt.com)). Trong source code, tác giả sử dụng hàm `arctan2` có trong thư viện `numpy` để tính góc $\theta$ và các giá trị $c, s$ tương ứng.
 
 ## 4. Thuật toán QR
-Trước khi bước vào phần này, chúng ta định nghĩa chuẩn $k\le 1$ của ma trận $A$, kí hiệu $\left|\left|A\right|\right|_k$ như sau:
+Trước khi bước vào phần này, chúng ta định nghĩa chuẩn $k\ge 1$ của ma trận $A$, kí hiệu $\left|\left|A\right|\right|_k$ như sau:
   
 ```math
 \left|\left|A\right|\right|_k = \sqrt[k]{\sum_{i,j} \left|a_{ij}\right|^k}
@@ -226,10 +226,10 @@ Trong dự án này, với giả thiết $A, Q, R$ là các ma trận thực, th
 #### 7.2.1. Gặp khó khăn trong trường hợp trị riêng là số phức
 Nếu phương trình $det(A-\lambda I)=0$ cho ra nghiệm phức, thuật toán QR tỏ ra không hiệu quả (do thuật toán QR trả về trị riêng là các phần tử nằm trên đường chéo của $A_k$, vốn là các số thực). Để giải quyết trường hợp này, ta cần sử dụng QR Algorithm with shifts (Wilkinson shift hay Francis double-shift).
 #### 7.2.2. Chi phí tính toán lớn
-Thuật toán phân rã QR có độ phức tạp (về thời gian) là $O(n^3)$ ($n$ là kích thước của ma trận), dẫn đến việc thuật toán QR có độ phức tạp về thời gian là $O(mn^3)$), với $m$ là số lần lặp (nếu $m \ll n$ do hội tụ quá nhanh thì độ phức tạp sẽ là $O(n^3)$).
+Thuật toán phân rã QR có độ phức tạp (về thời gian) là $O(n^3)$ ($n$ là kích thước của ma trận), dẫn đến việc thuật toán QR có độ phức tạp về thời gian là $O(mn^3)$, với $m$ là số lần lặp (nếu hội tụ quá nhanh thì độ phức tạp sẽ là $O(n^3)$ ).
 #### 7.2.3. Tốn bộ nhớ
-Nếu $A$ không có dạng [sparse matrix](https://en.wikipedia.org/wiki/Sparse_matrix) và kích thước ma trận lớn ($>2000$), bộ nhớ cần thiết cho thuật toán sẽ rất lớn
+Nếu $A$ không có dạng [sparse matrix](https://en.wikipedia.org/wiki/Sparse_matrix) và kích thước ma trận lớn ($\ge1000$), bộ nhớ cần thiết cho thuật toán sẽ rất lớn
 #### 7.2.4. Vector riêng rất dễ bị nhiễu loạn
 Mặc dù các giá trị riêng được tính toán chính xác, các vectơ riêng có thể nhạy cảm với nhiễu loạn (noises), đặc biệt đối với các ma trận có các giá trị riêng cách đều nhau.
 #### 7.2.5 Có thể không hội tụ
-Nếu ma trận $A$ không chuẩn (Non-normal matrix, là ma trận thỏa $AA^T\neq A^TA$), thuật toán QR có thể không hội tụ hoặc sinh ra các vector riêng không chính xác.
+Thuật toán QR có thể không hội tụ trong một số trường hợp (ma trận có kích thước quá lớn so với số lần lặp tối đa, không chéo hóa được, v.v.).
