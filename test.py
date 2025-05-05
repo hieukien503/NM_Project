@@ -109,16 +109,16 @@ class TestCase:
             print("Matrix A:")
             print_matrix(self.A)
         
-        A1 = self.A.copy()
-        char_poly_start = time.time()
-        eigenvalues, eigenvectors = characteristics_method(A1)
-        char_poly_end = time.time()
-        if len(eigenvalues) < 10 and len(eigenvectors) < 10:
-            print("Eigenvalues and Eigenvectors")
-            print("Using CharPoly Method:")
-            print_eigens(eigenvalues, eigenvectors)
+        # A1 = self.A.copy()
+        # char_poly_start = time.time()
+        # eigenvalues, eigenvectors = characteristics_method(A1)
+        # char_poly_end = time.time()
+        # if len(eigenvalues) < 10 and len(eigenvectors) < 10:
+        #     print("Eigenvalues and Eigenvectors")
+        #     print("Using CharPoly Method:")
+        #     print_eigens(eigenvalues, eigenvectors)
 
-        print(f"Time to find eigenvalues and eigenvectors using CharPoly Method: {(char_poly_end - char_poly_start):.4f} seconds")
+        # print(f"Time to find eigenvalues and eigenvectors using CharPoly Method: {(char_poly_end - char_poly_start):.4f} seconds")
         
         for idx, method in enumerate([qr_algorithm, qr_algorithm_wilkinson, francis_double_shift_qr]):
             A2 = self.A.copy()

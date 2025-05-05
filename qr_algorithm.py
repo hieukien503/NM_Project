@@ -94,19 +94,25 @@ def qr_algorithm_wilkinson(
         c = H[n - 1, n - 2]
         d = H[n - 1, n - 1]
 
-        roots = np.roots([1, -(a + d), a * d - b * c]).astype(dtype=np.complex64)
-        # Choose the root closest to the bottom-right eigenvalue
-        mu = roots[np.argmin(np.abs(roots - d))]
-        return mu
+        tr = a + d
+        det = a * d - b * c
+        discriminant = tr ** 2 - 4 * det
+        if discriminant >= 0:
+            sqrt_discriminant = np.sqrt(discriminant)
+            mu1 = (tr + sqrt_discriminant) / 2
+            mu2 = (tr - sqrt_discriminant) / 2
+            return mu1 if (abs(mu1 - d) <= abs(mu2 - d)) else mu2
+        
+        else:
+            return tr / 2
     
     n = A.shape[0]
     if n == 1:
         return A[0, 0]
 
     H = hessenberg(A)
-    H = H.astype(complex)
     gb.matrices = [H.copy()]
-    Q_total = np.eye(n, dtype=np.complex64)
+    Q_total = np.eye(n)
     iterations = 0
     m = n
 
@@ -119,7 +125,7 @@ def qr_algorithm_wilkinson(
         shift_matrix = mu * np.eye(m)
         Q, R = np.linalg.qr(H[:m, :m] - shift_matrix)
         H[:m, :m] = R @ Q + shift_matrix
-        Q_full = np.eye(n, dtype=np.complex64)
+        Q_full = np.eye(n)
         Q_full[:m, :m] = Q
         Q_total = Q_total @ Q_full
 
