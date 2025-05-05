@@ -33,7 +33,7 @@ Phân rã QR là một phần quan trọng, giúp chúng ta xây dựng chuỗi 
 
 Phân rã QR có các tính chất sau:
 - Nếu $rank(A)=n$, khi đó phân rã QR là duy nhất, ngược lại sẽ có nhiều đáp án thỏa mãn cho cặp ma trận ($Q, R$)</li>
-- Nếu $A$ không phải ma trận vuông (ma trận kích thước $m x n,~m\ge n$), ta vẫn định nghĩa phân rã QR, khi đó ma trận $Q$ là ma trận trực giao cấp $m$ và ma trận tam giác trên $R$ có kích thước $m x n$</li>
+- Nếu $A$ không phải ma trận vuông (ma trận kích thước $m \times n,~m\ge n$), ta vẫn định nghĩa phân rã QR, khi đó ma trận $Q$ là ma trận trực giao cấp $m$ và ma trận tam giác trên $R$ có kích thước $m x n$</li>
 - Nếu $A$ là ma trận vuông cấp $n$, các phần tử của $A$ là các số phức, thì khi đó ma trận $Q$ ở đây là ma trận <em>unitary</em> (là ma trận phức có chuyển vị liên hợp - conjugate transpose bằng với nghịch đảo của nó)</li>
 
 Trong phạm vi của đề tài, chúng ta sẽ chỉ giới hạn ma trận $A$ là ma trận thực, vuông cấp $n\ge 2$
